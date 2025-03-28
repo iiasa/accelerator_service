@@ -204,4 +204,15 @@ services:
   #     - ./nginx.conf.d/fe.nginx.conf:/etc/nginx/conf.d/fe.nginx.conf
   #     - ./nginx.conf.d/wagtail.nginx.conf:/etc/nginx/conf.d/wagtail.nginx.conf
     
-    
+
+# to start the local server with nodejs script powered dev server with prod build for the app
+#  web_fe_nodejs_https:
+#    build:
+#      context: "${WEBCLI_PROJECT_FOLDER:?err}"
+#      dockerfile: Dockerfile.https.dev
+#    ports:
+#      - 8080:8080
+#    env_file:
+#      - ./.env.web.fe
+#    depends_on:
+#      - web_be  
