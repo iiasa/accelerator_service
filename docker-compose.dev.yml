@@ -57,7 +57,8 @@ services:
       - PORT=8000
       - WORKERS_PER_CORE=1
       - TITILER_API_DEBUG=1
-      - GDAL_HTTP_CURL_OPTIONS='-k'
+      - GDAL_HTTP_CURL_OPTIONS="CURLOPT_SSL_VERIFYPEER=0 CURLOPT_SSL_VERIFYHOST=0"
+    
 
   web_be:
     build:
@@ -84,6 +85,7 @@ services:
     ports:
       - 8081:8081
       - 8080:8080
+      - 5173:5173
     env_file:
       - ./.env.web.fe
     depends_on:
@@ -203,3 +205,11 @@ services:
   #   volumes:
   #     - ./nginx.conf.d/fe.nginx.conf:/etc/nginx/conf.d/fe.nginx.conf
   #     - ./nginx.conf.d/wagtail.nginx.conf:/etc/nginx/conf.d/wagtail.nginx.conf
+
+  redis:
+    image: redis:latest
+    environment:
+      - REDIS_PASSWORD=defaultpassword
+    ports:
+      - 6379:6379
+    command: "redis-server --requirepass $$REDIS_PASSWORD"

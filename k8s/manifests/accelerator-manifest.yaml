@@ -11,10 +11,12 @@ spec:
     metadata:
       labels:
         app: accelerator-fe
+      annotations:
+        kubernetes.io/restart-at: "2025-03-31T10:50:00+0200"
     spec:
       containers:
       - name: acc-fe
-        image: registry.iiasa.ac.at/accelerator/iiasa-acc-fe
+        image: registry.iiasa.ac.at/accelerator/iiasa-acc-fe:319d1e4
         # envFrom:
         #   - secretRef:
         #       name: accelerator-fe-secret
@@ -46,10 +48,12 @@ spec:
     metadata:
       labels:
         app: accelerator-be
+      annotations:
+        kubernetes.io/restart-at: "2025-02-22T10:50:00+0200"
     spec:
       containers:
       - name: acc-be
-        image: registry.iiasa.ac.at/accelerator/iiasa-acc-be
+        image: registry.iiasa.ac.at/accelerator/iiasa-acc-be:4c4d5e0
         envFrom:
           - secretRef:
               name: accelerator-be-secret
@@ -95,4 +99,45 @@ spec:
       port: 8770
       targetPort: 8000
       nodePort: 30107
-
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:6.2
+        envFrom:
+          - secretRef:
+              name: redis-secret
+        ports:
+        - containerPort: 6379
+        command: ["redis-server", "--requirepass", "$(REDIS_PASSWORD)"]
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+      volumes:
+      - name: redis-data
+        persistentVolumeClaim:
+          claimName: redis-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi

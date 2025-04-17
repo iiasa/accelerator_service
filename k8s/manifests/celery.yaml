@@ -34,6 +34,42 @@ spec:
       imagePullSecrets:
         - name: iiasaregcred
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: accelerator-celery
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: accelerator-celery
+  template:
+    metadata:
+      labels:
+        app: accelerator-celery
+      annotations:
+        kubernetes.io/restart-at: "2025-03-18T16:48:22+0100"
+    spec:
+      containers:
+      - name: accelerator-celery
+        image: registry.iiasa.ac.at/accelerator/iiasa-acc-celery:5d8de2d
+        securityContext:
+            privileged: true
+        envFrom:
+          - secretRef:
+              name: celery-cluster-secret
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "6144Mi"
+            cpu: "8000m"
+          requests:
+            memory: "6144Mi"
+            cpu: "8000m"
+
+      imagePullSecrets:
+        - name: iiasaregcred
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -52,28 +88,3 @@ spec:
       name: "port2"
       port: 15672
       targetPort: 15672
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: accelerator-celery
-spec:
-  containers:
-  - name: accelerator-celery
-    image: registry.iiasa.ac.at/accelerator/iiasa-acc-celery
-    securityContext:
-        privileged: true
-    envFrom:
-      - secretRef:
-          name: celery-cluster-secret
-    imagePullPolicy: Always
-    resources:
-      limits:
-        memory: "6144Mi"
-        cpu: "8000m"
-      requests:
-        memory: "6144Mi"
-        cpu: "8000m"
-
-  imagePullSecrets:
-    - name: iiasaregcred

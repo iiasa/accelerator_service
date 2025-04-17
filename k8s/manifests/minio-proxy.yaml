@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: minio-proxy
-        image: registry.iiasa.ac.at/accelerator/minio-proxy
+        image: registry.iiasa.ac.at/accelerator/minio-proxy:1527102025
         # envFrom:
         #   - secretRef:
         #       name: accelerator-be-secret
