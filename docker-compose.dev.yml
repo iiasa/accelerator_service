@@ -33,7 +33,7 @@ services:
     volumes:
         - rabbitmq_data:/var/lib/rabbitmq
         - rabbitmq_log:/var/log/rabbitmq
-  
+
   minio:
     image: minio/minio
     ports:
@@ -58,7 +58,6 @@ services:
       - WORKERS_PER_CORE=1
       - TITILER_API_DEBUG=1
       - GDAL_HTTP_CURL_OPTIONS='-k'
-    
 
   web_be:
     build:
@@ -75,7 +74,7 @@ services:
       - db
       - minio
       - rabbitmq
-    
+
   web_fe:
     build:
       context: "${WEBCLI_PROJECT_FOLDER:?err}"
@@ -88,8 +87,8 @@ services:
     env_file:
       - ./.env.web.fe
     depends_on:
-      - web_be  
-  # convertert: 
+      - web_be
+  # convertert:
   #   build:
   #     context: "/Users/wrufesh/iiasa/accli/example_job_folder"
   #     dockerfile: Dockerfile
@@ -97,7 +96,7 @@ services:
   #   volumes:
   #     - "/Users/wrufesh/iiasa/accli/example_job_folder:/app/"
 
-  acli: 
+  acli:
     build:
       context: "${ACLI_PROJECT_FOLDER:?err}"
       dockerfile: Dockerfile.dev
@@ -111,12 +110,12 @@ services:
       dockerfile: Dockerfile.dev
 
     # command: sleep infinity
-    
+
     env_file:
       - ./.env.celery
     volumes:
       - "${CELERY_PROJECT_FOLDER:?err}:/home/nonroot/app/"
-     
+
     depends_on:
       - web_be
       - rabbitmq
@@ -128,12 +127,12 @@ services:
   #     dockerfile: Dockerfile.buildah
 
   #   # privileged: true
-    
+
   #   env_file:
   #     - ./.env.celery
   #   volumes:
   #     - "${CELERY_PROJECT_FOLDER:?err}:/home/nonroot/app/"
-     
+
   #   depends_on:
   #     - web_be
   #     - rabbitmq
@@ -143,28 +142,28 @@ services:
     build:
       context: "${CELERY_PROJECT_FOLDER:?err}"
       dockerfile: Dockerfile.k8s.events.dev
-    
+
     env_file:
       - ./.env.celery
     volumes:
       - "${CELERY_PROJECT_FOLDER:?err}:/app/"
-     
+
     depends_on:
       - web_be
       - rabbitmq
 
-  wkubecmd: 
+  wkubecmd:
     build:
-      context: "${WKUBECMD_WRAPPER_PROJECT_FOLDER:?err}"
+      context: "${WKUBE_JOB_AGENT_PROJECT_FOLDER:?err}"
       dockerfile: Dockerfile.dev
     environment:
       - ACC_JOB_GATEWAY_SERVER=http://web_be:8000/
       - ACC_JOB_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiSk9CIiwiY2FuX3JlZ2lzdGVyX3ZhbGlkYXRpb25fdHlwZXMiOltdLCJ1c2VyX2lkIjoxLCJqb2JfaWQiOjIzMSwiZXhwIjoxNzYzMDg2MTM5fQ.jRKBRv01t_LdqCh_qO3aPxtwdZJMLHVzSemHX8ezywc
     command: sleep infinity
     volumes:
-      - "${WKUBECMD_WRAPPER_PROJECT_FOLDER:?err}:/app/"
+      - "${WKUBE_JOB_AGENT_PROJECT_FOLDER:?err}:/app/"
 
-  # accms: 
+  # accms:
   #   build:
   #     context: "${ACCMS_PROJECT_FOLDER:?err}"
   #     dockerfile: Dockerfile.dev
@@ -184,7 +183,7 @@ services:
       REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
       REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
       REGISTRY_HTTP_ADDR: registry:8443
-      REGISTRY_HTTP_TLS_CERTIFICATE: /certs/server.crt 
+      REGISTRY_HTTP_TLS_CERTIFICATE: /certs/server.crt
       REGISTRY_HTTP_TLS_KEY: /certs/server.key
 
     # Way to generate htpasswd file
@@ -195,7 +194,7 @@ services:
       - ./registry_certs:/certs
 
   # nginx:
-  #   build: 
+  #   build:
   #     context: ../devnginx
   #     dockerfile: Dockerfile.dev
   #   ports:
@@ -204,4 +203,3 @@ services:
   #   volumes:
   #     - ./nginx.conf.d/fe.nginx.conf:/etc/nginx/conf.d/fe.nginx.conf
   #     - ./nginx.conf.d/wagtail.nginx.conf:/etc/nginx/conf.d/wagtail.nginx.conf
-  
