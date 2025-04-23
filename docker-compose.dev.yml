@@ -106,7 +106,7 @@ services:
     volumes:
       - "${ACLI_PROJECT_FOLDER:?err}:/app/"
 
-  celery:
+  scheduler:
     build:
       context: "${SCHEDULER_PROJECT_FOLDER:?err}"
       dockerfile: Dockerfile.dev
@@ -114,7 +114,7 @@ services:
     # command: sleep infinity
 
     env_file:
-      - ./.env.celery
+      - ./.env.scheduler
     volumes:
       - "${SCHEDULER_PROJECT_FOLDER:?err}:/home/nonroot/app/"
 
@@ -122,7 +122,7 @@ services:
       - web_be
       - rabbitmq
 
-  # image-builder-celery:
+  # image-builder-scheduler:
   #   build:
   #     context: "${SCHEDULER_PROJECT_FOLDER:?err}"
   #     # dockerfile: Dockerfile.image.builder.worker.dev
@@ -131,7 +131,7 @@ services:
   #   # privileged: true
 
   #   env_file:
-  #     - ./.env.celery
+  #     - ./.env.scheduler
   #   volumes:
   #     - "${SCHEDULER_PROJECT_FOLDER:?err}:/home/nonroot/app/"
 
@@ -146,7 +146,7 @@ services:
       dockerfile: Dockerfile.k8s.events.dev
 
     env_file:
-      - ./.env.celery
+      - ./.env.scheduler
     volumes:
       - "${SCHEDULER_PROJECT_FOLDER:?err}:/app/"
 
