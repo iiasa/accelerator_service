@@ -165,14 +165,14 @@ services:
     volumes:
       - "${WKUBE_JOB_AGENT_PROJECT_FOLDER:?err}:/app/"
 
-  # accms:
-  #   build:
-  #     context: "${ACCMS_PROJECT_FOLDER:?err}"
-  #     dockerfile: Dockerfile.dev
-  #   ports:
-  #     - 8001:8000
-  #   volumes:
-  #     - "${ACCMS_PROJECT_FOLDER:?err}:/app/"
+  accms: 
+    build:
+      context: "${ACCMS_PROJECT_FOLDER:?err}"
+      dockerfile: Dockerfile.dev
+    ports:
+      - 8001:8000
+    volumes:
+      - "${ACCMS_PROJECT_FOLDER:?err}:/app/"
 
   registry:
     image: registry:2
