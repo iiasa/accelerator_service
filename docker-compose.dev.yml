@@ -9,6 +9,8 @@ volumes:
     external: false
   registry_data:
     external: false
+  remark42_data:
+    external: false
 
 services:
   db:
@@ -217,12 +219,11 @@ services:
 
   remark42_store:
     build:
-      context: "${REMARK42_PROJECT_FOLDER:?err}/backend/_example"
+      context: "${REMARK42_PROJECT_FOLDER:?err}/backend/_example/memory_store"
       dockerfile: Dockerfile.dev
     volumes:
       - "${REMARK42_PROJECT_FOLDER:?err}:/app/"
     hostname: "mem_store.r42"
-    command: sleep infinity
     environment:
       - API=/cmd
       - SECRET=123456
@@ -231,21 +232,24 @@ services:
   remark42:
     build:
       context: "${REMARK42_PROJECT_FOLDER:?err}"
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
       args:
         - SKIP_BACKEND_TEST=true
         - SKIP_FRONTEND_TEST=true
-    command: sleep infinity
+    image: ghcr.io/umputun/remark42:dev
     ports:
-      - 8080:4040
+      - 4040:8080
       - 8084:8084
     volumes:
       - "${REMARK42_PROJECT_FOLDER:?err}:/app/"
+      - remark42_data:/srv/var
 
     hostname: "remark42-dev"
 
     environment:
-      - REMARK_URL=http://127.0.0.1:8080
+      - REMARK_URL=http://localip:4040
+      - ALLOWED_HOSTS="self,example1.org,example2.org"
+      - AUTH_SAME_SITE=none
       - SECRET=123456
       - DEBUG=true
       - EMOJI=true
