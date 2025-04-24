@@ -3,7 +3,7 @@
 .env.web.fe
 .env.geoserver
 .env.minio
-.env.celery
+.env.scheduler
 
 registry_auth/*
 !registry_auth/.gitkeep
