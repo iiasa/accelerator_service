@@ -213,3 +213,50 @@ services:
     ports:
       - 6379:6379
     command: "redis-server --requirepass $$REDIS_PASSWORD"
+
+
+  remark42_store:
+    build:
+      context: "${REMARK42_PROJECT_FOLDER:?err}/backend/_example"
+      dockerfile: Dockerfile.dev
+    volumes:
+      - "${REMARK42_PROJECT_FOLDER:?err}:/app/"
+    hostname: "mem_store.r42"
+    command: sleep infinity
+    environment:
+      - API=/cmd
+      - SECRET=123456
+      - DEBUG=true
+
+  remark42:
+    build:
+      context: "${REMARK42_PROJECT_FOLDER:?err}"
+      dockerfile: Dockerfile.dev
+      args:
+        - SKIP_BACKEND_TEST=true
+        - SKIP_FRONTEND_TEST=true
+    command: sleep infinity
+    ports:
+      - 8080:4040
+      - 8084:8084
+    volumes:
+      - "${REMARK42_PROJECT_FOLDER:?err}:/app/"
+
+    hostname: "remark42-dev"
+
+    environment:
+      - REMARK_URL=http://127.0.0.1:8080
+      - SECRET=123456
+      - DEBUG=true
+      - EMOJI=true
+      - AUTH_ANON=true
+      - AUTH_DEV=true
+      - ADMIN_TYPE=rpc
+      - ADMIN_RPC_API=http://mem_store.r42:8080/cmd
+      - STORE_TYPE=rpc
+      - STORE_RPC_API=http://mem_store.r42:8080/cmd
+      - IMAGE_TYPE=rpc
+      - IMAGE_RPC_API=http://mem_store.r42:8080/cmd
+    
+    depends_on:
+      - remark42_store
