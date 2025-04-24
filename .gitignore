@@ -3,10 +3,13 @@
 .env.web.fe
 .env.geoserver
 .env.minio
-.env.celery
+.env.scheduler
 
 registry_auth/*
 !registry_auth/.gitkeep
+
+minio_certs/*
+!minio_certs/.gitkeep
 
 k8s/manifests/secrets/accelerator-be-secret.yaml
 k8s/manifests/secrets/celery-cluster-secret.yaml

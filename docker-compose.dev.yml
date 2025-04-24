@@ -58,7 +58,7 @@ services:
       - WORKERS_PER_CORE=1
       - TITILER_API_DEBUG=1
       - GDAL_HTTP_CURL_OPTIONS="CURLOPT_SSL_VERIFYPEER=0 CURLOPT_SSL_VERIFYHOST=0"
-    
+
 
   web_be:
     build:
@@ -106,34 +106,34 @@ services:
     volumes:
       - "${ACLI_PROJECT_FOLDER:?err}:/app/"
 
-  celery:
+  scheduler:
     build:
-      context: "${CELERY_PROJECT_FOLDER:?err}"
+      context: "${SCHEDULER_PROJECT_FOLDER:?err}"
       dockerfile: Dockerfile.dev
 
     # command: sleep infinity
 
     env_file:
-      - ./.env.celery
+      - ./.env.scheduler
     volumes:
-      - "${CELERY_PROJECT_FOLDER:?err}:/home/nonroot/app/"
+      - "${SCHEDULER_PROJECT_FOLDER:?err}:/home/nonroot/app/"
 
     depends_on:
       - web_be
       - rabbitmq
 
-  # image-builder-celery:
+  # image-builder-scheduler:
   #   build:
-  #     context: "${CELERY_PROJECT_FOLDER:?err}"
+  #     context: "${SCHEDULER_PROJECT_FOLDER:?err}"
   #     # dockerfile: Dockerfile.image.builder.worker.dev
   #     dockerfile: Dockerfile.buildah
 
   #   # privileged: true
 
   #   env_file:
-  #     - ./.env.celery
+  #     - ./.env.scheduler
   #   volumes:
-  #     - "${CELERY_PROJECT_FOLDER:?err}:/home/nonroot/app/"
+  #     - "${SCHEDULER_PROJECT_FOLDER:?err}:/home/nonroot/app/"
 
   #   depends_on:
   #     - web_be
@@ -142,13 +142,13 @@ services:
 
   k8s_events:
     build:
-      context: "${CELERY_PROJECT_FOLDER:?err}"
+      context: "${SCHEDULER_PROJECT_FOLDER:?err}"
       dockerfile: Dockerfile.k8s.events.dev
 
     env_file:
-      - ./.env.celery
+      - ./.env.scheduler
     volumes:
-      - "${CELERY_PROJECT_FOLDER:?err}:/app/"
+      - "${SCHEDULER_PROJECT_FOLDER:?err}:/app/"
 
     depends_on:
       - web_be
@@ -165,7 +165,7 @@ services:
     volumes:
       - "${WKUBE_JOB_AGENT_PROJECT_FOLDER:?err}:/app/"
 
-  accms: 
+  accms:
     build:
       context: "${ACCMS_PROJECT_FOLDER:?err}"
       dockerfile: Dockerfile.dev
