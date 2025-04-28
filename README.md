@@ -1,46 +1,95 @@
-# How to start accelerator service locally
-# prerequisites
-1. setup docker engine 
-1. install kubernetes
-1. enable kubernetes with docker desktop
-# general
-1. Copy .env* files under root directory and remove .sample suffix
-1. Create registry_auth if not exists
-# .env
-1. Complete the directories in .env, the path should be $pwd/ $(the actual directory as written in the env)
-# .env.web.be
-# .env.web.fe
-# misc
-    create localip entry in /etc/hosts
-    # ACCELERATOR IPS
-    xxx.xxx.xxx.xxx localip
-    xxx.xxx.xxx.xxx registry
-    xxx.xxx.xxx.xxx web_be
-    xxx.xxx.xxx.xxx indicates your ip address under iiasa network, check it out using ifconfig command
-# titiler
-1. clone the repo `docker compose -f docker-compose.dev.yml up minio --build`
-1. use commit `git checkout 6bc1429` for the time being  
-1. create self signed certificates that will be used for titiler, as well as minio with following oneliner command
-  `openssl req -x509 -newkey rsa:2048 -keyout private.key -out public.crt -days $DAYS -nodes -subj "/CN=localip"`
-1. pub self signed certificates under certs, copy and rename it as minio-cert.crt under dockerfiles directory
-# minio
-1. copy the above created private public set and place them under certs directory
-1. execute `docker compose -f docker-compose.dev.yml up minio --build`
-1. access minio by https:localhost:9001 and create a set of access key.
-1. fill these 2 fields with the created access key inside .env.web.be and .env.celery INITIAL_S3_API_KEY= INITIAL_S3_SECRET_KEY=
-# .env.celery
-1. in .env.celery change `IMAGE_REGISTRY_URL=registry:8443`, `IMAGE_REGISTRY_USER=myregistry`, `IMAGE_REGISTRY_PASSWORD=myregistrypassword`
-1. convert ~/.kube/config to json and then base64 string, fill field `WKUBE_SECRET_JSON_B64` with the processed base64 string
-1. use command `python3 -c "import sys, yaml, json; print(json.dumps(yaml.safe_load(sys.stdin), indent=2))" < ~/.kube/config > config.json` to convert kubernetes config yaml as a json file
-1. execute `base64 -w 0 ./config.json` to convert the config json to a base64 string
-# registry
-1. execute command `docker run --rm --entrypoint htpasswd httpd:2 -Bbn myregistry myregistrypassword > /home/caosimin/Development/accelerator_service/registry_auth/htpasswd` to generate htpasswd
-# database
-1. execute `docker compose -f docker-compose.dev.yml up db --build` to build the db image
-1. enter the db container with `docker exec -ti db /bin/sh`
-1. create databases inside the container with `su -- postgres -c "createdb accelerator"` and `su -- postgres -c "createdb acceleratortest"`
+# How to configure and start Accelerator services for local development
 
-# startup the project
-# `NOTE`
-1. make sure to config ~/.kube/config to json before convert it to base64 string
-2. inside `generic_scenario_explorer_backend` ignore the .env.sample, the configs are passing down as the containers are orchestrated
+## Prerequisites
+
+1. A Docker runtime on your development machine.
+2. A Kubernetes cluster on your development machine (e.g. via Docker Desktop)
+
+Copy `.env*` files under root directory and remove `.sample` suffixes.
+
+## `.env`
+
+Complete the directory paths in `.env`. Relative paths should start with `./` to avoid being mistaken for a volume name. The current working directory `.` when issuing `docker compose` commands must be the root directory containing this `README.md` and the `.env` files.
+
+## `.env.web.be`
+
+Set the base64-encoded representation of some random 256-bit (32-byte) key as value of `JWT_SECRET_KEY`. For example `MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE`.
+
+## `.env.web.fe`
+
+## Miscellaneous
+
+Create local IP entries in your `/etc/hosts`
+```
+# Accelerator
+xxx.xxx.xxx.xxx localip
+xxx.xxx.xxx.xxx registry
+xxx.xxx.xxx.xxx web_be
+```
+where `xxx.xxx.xxx.xxx` is your IP address on the IIASA network.
+
+## TiTiler
+
+1. Clone the repo `docker compose -f docker-compose.dev.yml up minio --build`.
+2. Use commit `git checkout 6bc1429` for the time being.
+3. Create a self-signed certificate expiring in `$DAYS` for TiTiler by issuing:
+  `openssl req -x509 -newkey rsa:2048 -keyout private.key -out public.crt -days $DAYS -nodes -subj "/CN=localip"`
+4. Pub self signed certificates under certs, copy and rename it as `minio-cert.crt` under dockerfiles directory
+
+## MinIO
+
+1. Create a self-signed certificate:
+   ```
+   cd minio_certs
+   openssl req -x509 -newkey rsa:2048 -keyout private.key -out public.crt -days $DAYS -nodes -subj "/CN=localip"
+   cd -
+   ```
+   where `$DAYS` is the number of days before the certificate expires. Use a big number to effectively have no expiry.
+2. Start the service:
+   ```
+   docker compose -f docker-compose.dev.yml up minio [--build]
+   ```
+   Optionally use the `--build` flag to ensure that images are rebuilt before starting
+   containers so as to pick up code changes, updated dependencies, and any
+   modifications to the build specification (`Dockefile`).
+3. Access MinIO via `https:localhost:9001` and create access key (user ID)
+   and matching secret key (password) credentials.
+4. In `.env.web.be` and `.env.scheduler`, set these as values of the `*_S3_API_KEY=`
+   and `*_S3_SECRET_KEY=` entries.
+
+## `.env.scheduler`
+
+1. In `.env.scheduler` change `IMAGE_REGISTRY_URL=registry:8443`, `IMAGE_REGISTRY_USER=myregistry`, `IMAGE_REGISTRY_PASSWORD=myregistrypassword`
+2. Convert `~/.kube/config` to JSON and then a base64 string:
+   ```
+   kubectl config view --output json --raw >kubeconfig.json
+   ```
+   Edit the JSON to remove irrevelant contexts / credentials.
+   ```
+   base64 -w 0 kubeconfig.json >kubeconfig.b64
+   ```
+3. Set  `WKUBE_SECRET_JSON_B64` to the content of `kubeconfig.b64`.
+4. Or use command `python3 -c "import sys, yaml, json; print(json.dumps(yaml.safe_load(sys.stdin), indent=2))" < ~/.kube/config > config.json` to convert the kubernetes config to JSON.
+
+## Registry
+
+Generate `htpasswd` file:
+1. `docker pull httpd:2`
+2. `docker run --rm --entrypoint htpasswd httpd:2 -Bbn myregistry myregistrypassword > registry_auth/htpasswd`
+
+## Database
+
+1. Execute `docker compose -f docker-compose.dev.yml up db [--build]` to start the service and optionally (re)build the image.
+2. Enter the db container with `docker exec -it <db container ID> /bin/bash`
+3. Create databases inside the container with:
+   - `su -- postgres -c "createdb accelerator"`
+   - `su -- postgres -c "createdb acceleratortest"`
+   - `su -- postgres -c "createdb accms"`
+
+## Startup the project
+
+`docker compose -f docker-compose.dev.yml up`
+
+### `NOTE`
+
+Inside `control_services_backend` ignore the `.env.sample`, the configs are passed down as the containers are orchestrated.
