@@ -79,7 +79,7 @@ Generate `htpasswd` file:
 
 ## Database
 
-1. Execute `docker compose -f docker-compose.dev.yml up db [--build]` to start the service and optionally (re)build the image.
+1. Execute `docker compose -f docker-compose.dev.yml up db --build` to start the service and optionally (re)build the image.
 2. Enter the db container with `docker exec -it <db container ID> /bin/bash`
 3. Create databases inside the container with:
    - `su -- postgres -c "createdb accelerator"`
@@ -88,7 +88,7 @@ Generate `htpasswd` file:
 
 ## Startup the project
 
-`docker compose -f docker-compose.dev.yml up`
+`docker compose -f docker-compose.dev.yml up --build`
 
 ## Browse
 
