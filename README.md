@@ -63,6 +63,7 @@ where `xxx.xxx.xxx.xxx` is your IP address on the IIASA network.
 ## `.env.scheduler`
 
 1. In `.env.scheduler` change `IMAGE_REGISTRY_URL=registry:8443`, `IMAGE_REGISTRY_USER=myregistry`, `IMAGE_REGISTRY_PASSWORD=myregistrypassword`
+   - When the registry service is running, you can login to it via `docker login registry:8443` and the above username and password.
 2. Convert `~/.kube/config` to JSON and then a base64 string:
    ```
    kubectl config view --output json --raw >kubeconfig.json
