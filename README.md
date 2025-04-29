@@ -90,6 +90,20 @@ Generate `htpasswd` file:
 
 `docker compose -f docker-compose.dev.yml up`
 
+## Browse
+
+Browse to the backend at `https://localhost:8000`. In case of a security warning on account of the self-signed certificate, add an exception in your browser.
+
+Browse to the frontend at `https://localhost:8080`. In case of a security warning on account of the self-signed certificate, add an exception in your browser. Then log in via the `Login with IIASA` button. To grant yourself administrator rights when logged in do:
+```
+docker ps | grep web_be
+```
+Make note of the backend container ID, then shell into the running container and grant:
+```
+docker exec -it <container ID> /bin/bash
+python apply.py add_role <your IIASA email> APP__SUPERUSER
+```
+
 ### `NOTE`
 
 Inside `control_services_backend` ignore the `.env.sample`, the configs are passed down as the containers are orchestrated.
