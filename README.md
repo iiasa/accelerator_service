@@ -13,7 +13,10 @@ Complete the directory paths in `.env`. Relative paths should start with `./` to
 
 ## `.env.web.be`
 
-Set the base64-encoded representation of some random 256-bit (32-byte) key as value of `JWT_SECRET_KEY`. For example `MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE`.
+Set `JWT_SECRET_KEY` and `JOB_SECRET_ENCRYPTION_KEY` to the base64-encoded representation of random 256-bit key values which you can obtain as follows:
+```
+head </dev/random -c32 | base64
+```
 
 ## `.env.web.fe`
 
