@@ -114,6 +114,7 @@ services:
       dockerfile: Dockerfile.dev
 
     # command: sleep infinity
+    privileged: true
 
     env_file:
       - ./.env.scheduler
@@ -123,6 +124,7 @@ services:
     depends_on:
       - web_be
       - rabbitmq
+      - registry
 
   # image-builder-scheduler:
   #   build:
