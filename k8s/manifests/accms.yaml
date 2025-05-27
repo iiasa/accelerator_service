@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: accms
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: accms
+  template:
+    metadata:
+      labels:
+        app: accms
+      annotations:
+        kubernetes.io/restart-at: "2025-02-22T10:50:00+0200"
+    spec:
+      containers:
+      - name: accms
+        image: registry.iiasa.ac.at/accelerator/accms:652f5bf
+        envFrom:
+          - secretRef:
+              name: accms-secret
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        resources:
+          limits:
+            # memory: "8192Mi"
+            # cpu: "8000m"
+            memory: "2048Mi"
+            cpu: "2000m"
+          requests:
+            memory: "2048Mi"
+            cpu: "2000m"
+      
+      
+      imagePullSecrets:
+        - name: iiasaregcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: accms-service
+spec:
+  type: NodePort
+  selector:
+    app: accms
+  ports:
+    - protocol: TCP
+      port: 8970
+      targetPort: 8000
+      nodePort: 30155

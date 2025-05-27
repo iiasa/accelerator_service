@@ -52,7 +52,7 @@ spec:
     spec:
       containers:
       - name: accelerator-celery
-        image: registry.iiasa.ac.at/accelerator/iiasa-acc-celery:5d8de2d
+        image: registry.iiasa.ac.at/accelerator/iiasa-acc-celery:2993fc8
         securityContext:
             privileged: true
         envFrom:
@@ -61,7 +61,7 @@ spec:
         imagePullPolicy: Always
         resources:
           limits:
-            memory: "6144Mi"
+            memory: "7000Mi"
             cpu: "8000m"
           requests:
             memory: "6144Mi"

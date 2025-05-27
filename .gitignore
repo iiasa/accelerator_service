@@ -4,6 +4,7 @@
 .env.geoserver
 .env.minio
 .env.scheduler
+.env.accms
 
 registry_auth/*
 !registry_auth/.gitkeep
@@ -17,3 +18,4 @@ k8s/manifests/secrets/rabbitmq-pubsub-secret.yaml
 k8s/manifests/secrets/k8s-worker-secret.yaml
 k8s/manifests/secrets/remark42.secret.yaml
 k8s/manifests/secrets/redis-secret.yaml
+k8s/manifests/secrets/accms-secrets.yaml

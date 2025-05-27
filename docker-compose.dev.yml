@@ -114,6 +114,7 @@ services:
       dockerfile: Dockerfile.dev
 
     # command: sleep infinity
+    privileged: true
 
     env_file:
       - ./.env.scheduler
@@ -123,6 +124,7 @@ services:
     depends_on:
       - web_be
       - rabbitmq
+      - registry
 
   # image-builder-scheduler:
   #   build:
@@ -173,8 +175,12 @@ services:
       dockerfile: Dockerfile.dev
     ports:
       - 8001:8000
+    env_file:
+      - ./.env.accms
     volumes:
       - "${ACCMS_PROJECT_FOLDER:?err}:/app/"
+    depends_on:
+      - db
 
   registry:
     image: registry:2
@@ -219,8 +225,8 @@ services:
   
   accelerator_routine:
     build:
-      context: "${ACCELERATOR_COMMON_ROUTINES:?err}/csv_regional_timeseries_validator"
+      context: "${ACCELERATOR_COMMON_ROUTINES:?err}/tif_to_cog_converter"
       dockerfile: Dockerfile.dev
     command: sleep infinity
     volumes:
-      - "${ACCELERATOR_COMMON_ROUTINES:?err}/csv_regional_timeseries_validator:/app/"
+      - "${ACCELERATOR_COMMON_ROUTINES:?err}/tif_to_cog_converter:/app/"
