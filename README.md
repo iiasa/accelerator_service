@@ -3,7 +3,9 @@
 ## Prerequisites
 
 1. A Docker runtime on your development machine.
-2. A Kubernetes cluster on your development machine (e.g. via Docker Desktop)
+2. A Kubernetes cluster, either on your development machine or remotely.
+   * **Warning:** Docker Desktop on Windows, though has issues with building and Wine.
+   * On Linux, success has been had with Rancher desktop.
 
 Copy `.env*` files under root directory and remove `.sample` suffixes.
 
@@ -11,14 +13,35 @@ Copy `.env*` files under root directory and remove `.sample` suffixes.
 
 Complete the directory paths in `.env`. Relative paths should start with `./` to avoid being mistaken for a volume name. The current working directory `.` when issuing `docker compose` commands must be the root directory containing this `README.md` and the `.env` files.
 
-## `.env.web.be`
+## `.env.web.be` (backend)
 
-Set `JWT_SECRET_KEY` and `JOB_SECRET_ENCRYPTION_KEY` to the base64-encoded representation of random 256-bit key values which you can obtain as follows:
+Set `JOB_SECRET_ENCRYPTION_KEY` to the base64-encoded representation of random 256-bit key values which you can obtain as follows:
 ```
 head </dev/random -c32 | base64
 ```
+This key encrypts secrets required by jobs.
 
-## `.env.web.fe`
+Set `BUCKET_DETAILS_ENCRYPTION_KEY` to the base64-encoded representation of random 256-bit key values which you can obtain as follows:
+```
+head </dev/random -c32 | base64
+```
+This key encrypts bucket credentials.
+
+Need a public/private keypair. Tokens are signed with the private key by the backend, and can be verified with the public key. This is useful for example for the gateway for interactive containers: the gateway simply verifies the token via the public key as obtained via the `GET` method at `https://accelerator-api.iiasa.ac.at/docs#/.well-known/jwks.json`.
+
+Use OpenSSL to generate the keypair and extract the public key:
+```
+openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:2048 | base64 -w0
+openssl pkey -in private_key.pem -pubout -out public_key.pem
+```
+
+Set the following:
+```
+JWT_BASE64_PRIVATE_KEY="$(base64 -w0 private_key.pem)"
+JWT_BASE64_PUBLIC_KEY="$(base64 -w0 public_key.pem)"
+```
+
+## `.env.web.fe` (frontend)
 
 ## Miscellaneous
 
