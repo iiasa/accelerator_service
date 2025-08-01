@@ -7,9 +7,11 @@
    * **Warning:** Docker Desktop on Windows has issues with building and Wine.
    * On Linux, success has been had with Rancher desktop.
 
+## Services
+
 For development work, at a minimum run the frontend, backend, scheduler, TiTiler, and MinIO.
 
-Copy `.env*` files under root directory and remove `.sample` suffixes. Subsequently customize each as per below.
+To set up the services, copy `.env*` files under root directory and remove `.sample` suffixes. Subsequently customize each as per below.
 
 ### `.env`
 
@@ -63,7 +65,7 @@ Settings are self-explanatory.
 3. Set  `WKUBE_SECRET_JSON_B64` to the content of `kubeconfig.b64`.
 4. Or use command `python3 -c "import sys, yaml, json; print(json.dumps(yaml.safe_load(sys.stdin), indent=2))" < ~/.kube/config > config.json` to convert the kubernetes config to JSON.
 
-## [TiTiler](https://developmentseed.org/titiler/) (tile server)
+### [TiTiler](https://developmentseed.org/titiler/) (tile server)
 
 1. Clone the repo `docker compose -f docker-compose.dev.yml up minio --build`.
 2. Create a self-signed certificate expiring in `$DAYS` for TiTiler by issuing:
