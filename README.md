@@ -15,6 +15,8 @@ Complete the directory paths in `.env`. Relative paths should start with `./` to
 
 ## `.env.web.be` (backend)
 
+Aside from the self-explanatory settings...
+
 Set `JOB_SECRET_ENCRYPTION_KEY` to the base64-encoded representation of random 256-bit key values which you can obtain as follows:
 ```
 head </dev/random -c32 | base64
@@ -43,24 +45,25 @@ JWT_BASE64_PUBLIC_KEY="$(base64 -w0 public_key.pem)"
 
 ## `.env.web.fe` (frontend)
 
+Settings are self-explanatory.
+
 ## Miscellaneous
 
 Create local IP entries in your `/etc/hosts`
 ```
 # Accelerator
-xxx.xxx.xxx.xxx localip
-xxx.xxx.xxx.xxx registry
-xxx.xxx.xxx.xxx web_be
+xxx.xxx.xxx.xxx localip registry web_be
 ```
 where `xxx.xxx.xxx.xxx` is your IP address on the IIASA network.
+
+When changing the network environment, for example by taking a dev laptop home, need to change this.
 
 ## TiTiler
 
 1. Clone the repo `docker compose -f docker-compose.dev.yml up minio --build`.
-2. Use commit `git checkout 6bc1429` for the time being.
-3. Create a self-signed certificate expiring in `$DAYS` for TiTiler by issuing:
+2. Create a self-signed certificate expiring in `$DAYS` for TiTiler by issuing:
   `openssl req -x509 -newkey rsa:2048 -keyout private.key -out public.crt -days $DAYS -nodes -subj "/CN=localip"`
-4. Pub self signed certificates under certs, copy and rename it as `minio-cert.crt` under dockerfiles directory
+3. Pub self signed certificates under certs, copy and rename it as `minio-cert.crt` under dockerfiles directory
 
 ## MinIO
 
