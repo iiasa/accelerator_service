@@ -4,10 +4,12 @@
 
 1. A Docker runtime on your development machine.
 2. A Kubernetes cluster, either on your development machine or remotely.
-   * **Warning:** Docker Desktop on Windows, though has issues with building and Wine.
+   * **Warning:** Docker Desktop on Windows has issues with building and Wine.
    * On Linux, success has been had with Rancher desktop.
 
-Copy `.env*` files under root directory and remove `.sample` suffixes.
+For development work, at a minimum run the frontend, backend, scheduler, TiTiler, and MinIO.
+
+Copy `.env*` files under root directory and remove `.sample` suffixes. Subsequently customize each as per below.
 
 ## `.env`
 
@@ -58,14 +60,14 @@ where `xxx.xxx.xxx.xxx` is your IP address on the IIASA network.
 
 When changing the network environment, for example by taking a dev laptop home, need to change this.
 
-## TiTiler
+## [TiTiler](https://developmentseed.org/titiler/) (tile server)
 
 1. Clone the repo `docker compose -f docker-compose.dev.yml up minio --build`.
 2. Create a self-signed certificate expiring in `$DAYS` for TiTiler by issuing:
   `openssl req -x509 -newkey rsa:2048 -keyout private.key -out public.crt -days $DAYS -nodes -subj "/CN=localip"`
 3. Pub self signed certificates under certs, copy and rename it as `minio-cert.crt` under dockerfiles directory
 
-## MinIO
+## MinIO (block storage, S3)
 
 1. Create a self-signed certificate:
    ```
@@ -86,7 +88,7 @@ When changing the network environment, for example by taking a dev laptop home, 
 4. In `.env.web.be` and `.env.scheduler`, set these as values of the `*_S3_API_KEY=`
    and `*_S3_SECRET_KEY=` entries.
 
-## `.env.scheduler`
+## `.env.scheduler` (job dispatcher)
 
 1. In `.env.scheduler` change `IMAGE_REGISTRY_URL=registry:8443`, `IMAGE_REGISTRY_USER=myregistry`, `IMAGE_REGISTRY_PASSWORD=myregistrypassword`
    - When the registry service is running, you can login to it via `docker login registry:8443` and the above username and password.
