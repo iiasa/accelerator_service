@@ -119,7 +119,7 @@ services:
     env_file:
       - ./.env.scheduler
     volumes:
-      - "${SCHEDULER_PROJECT_FOLDER:?err}:/home/nonroot/app/"
+      - "${SCHEDULER_PROJECT_FOLDER:?err}:/home/ubuntu/app/"
 
     depends_on:
       - web_be
@@ -182,6 +182,21 @@ services:
     depends_on:
       - db
 
+
+  threads:
+    build:
+      context: "${THREADS_PROJECT_FOLDER:?err}"
+      dockerfile: Dockerfile.dev
+    ports:
+      - 8003:8000
+    env_file:
+      - ./.env.threads
+    command: sleep infinity
+    volumes:
+      - "${THREADS_PROJECT_FOLDER:?err}:/app/"
+    depends_on:
+      - db
+
   registry:
     image: registry:2
     ports:
@@ -225,8 +240,8 @@ services:
   
   accelerator_routine:
     build:
-      context: "${ACCELERATOR_COMMON_ROUTINES:?err}/tif_to_cog_converter"
+      context: "${ACCELERATOR_COMMON_ROUTINES:?err}/csv_regional_timeseries_validator"
       dockerfile: Dockerfile.dev
     command: sleep infinity
     volumes:
-      - "${ACCELERATOR_COMMON_ROUTINES:?err}/tif_to_cog_converter:/app/"
+      - "${ACCELERATOR_COMMON_ROUTINES:?err}/csv_regional_timeseries_validator:/app/"

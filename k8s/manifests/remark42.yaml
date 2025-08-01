@@ -22,7 +22,7 @@ spec:
         
       containers:
         - name: remark42
-          image: registry.iiasa.ac.at/accelerator/remark42:v1.14.0
+          image: registry.iiasa.ac.at/accelerator/remark42:eaa64bac
           ports:
             # http:
             - containerPort: 8080

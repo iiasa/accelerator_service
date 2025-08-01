@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: acc-fe
-        image: registry.iiasa.ac.at/accelerator/iiasa-acc-fe:b05b8c5
+        image: registry.iiasa.ac.at/accelerator/iiasa-acc-fe:5431832
         # envFrom:
         #   - secretRef:
         #       name: accelerator-fe-secret
@@ -40,7 +40,7 @@ kind: Deployment
 metadata:
   name: accelerator-be
 spec:
-  replicas: 1
+  replicas: 8
   selector:
     matchLabels:
       app: accelerator-be
@@ -53,7 +53,7 @@ spec:
     spec:
       containers:
       - name: acc-be
-        image: registry.iiasa.ac.at/accelerator/iiasa-acc-be:934c0c9
+        image: registry.iiasa.ac.at/accelerator/iiasa-acc-be:829b6e2
         envFrom:
           - secretRef:
               name: accelerator-be-secret
@@ -62,11 +62,11 @@ spec:
         - containerPort: 8000
         resources:
           limits:
-            memory: "4095Mi"
-            cpu: "4000m"
+            memory: "2048Mi"
+            cpu: "1000m"
           requests:
-            memory: "4095Mi"
-            cpu: "4000m"
+            memory: "1024Mi"
+            cpu: "1000m"
       
       
       imagePullSecrets:

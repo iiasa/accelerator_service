@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sshgateway
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sshgateway
+  template:
+    metadata:
+      labels:
+        app: sshgateway
+    spec:
+      containers:
+      - name: sshgateway
+        image: registry.iiasa.ac.at/accelerator/sshgateway:latest
+        imagePullPolicy: Always
+        env:
+        - name: PUBLIC_KEY
+          value: "myvalue"
+        - name: PASSWORD_ACCESS
+          value: false
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+        ports:
+        - containerPort: 2222
+        resources:
+          limits:
+            memory: "1024Mi"
+            cpu: "1000m"
+          requests:
+            memory: "1024Mi"
+            cpu: "1000m"
+      imagePullSecrets:
+        - name: iiasaregcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sshgateway-service
+spec:
+  type: NodePort
+  selector:
+    app: sshgateway
+  ports:
+    - protocol: TCP
+      port: 8913
+      targetPort: 2222
+      nodePort: 30153

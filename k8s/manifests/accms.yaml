@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: accms
-        image: registry.iiasa.ac.at/accelerator/accms:652f5bf
+        image: registry.iiasa.ac.at/accelerator/accms:0cd0a2f
         envFrom:
           - secretRef:
               name: accms-secret
@@ -25,17 +25,21 @@ spec:
         - containerPort: 8000
         resources:
           limits:
-            # memory: "8192Mi"
-            # cpu: "8000m"
             memory: "2048Mi"
             cpu: "2000m"
           requests:
             memory: "2048Mi"
             cpu: "2000m"
-      
-      
+
+        # volumeMounts:
+        #     - name: accms-media-pv
+        #       mountPath: /app/media
       imagePullSecrets:
         - name: iiasaregcred
+      # volumes:
+      #   - name: accms-media-pv
+      #     persistentVolumeClaim:
+      #       claimName: accms-pvc
 ---
 apiVersion: v1
 kind: Service
