@@ -9,13 +9,7 @@
 
 ## Services
 
-For development work, at a minimum run the frontend, backend, scheduler, TiTiler, and MinIO.
-
-To set up the services, copy `.env*` files under root directory and remove `.sample` suffixes. Subsequently customize each as per below.
-
-### `.env`
-
-Complete the directory paths in `.env`. Relative paths should start with `./` to avoid being mistaken for a volume name. The current working directory `.` when issuing `docker compose` commands must be the root directory containing this `README.md` and the `.env` files.
+To set up the services, make copies of the `.env.*.sample` files under root directory that are renamed to remove `.sample` suffixes. Subsequently customize each copy as described below. Complete the directory paths in the `.env` file (copy of `.env.sample`). Relative paths should start with `./` to avoid being mistaken for a volume name. The current working directory `.` when issuing `docker compose` commands must be the root directory (containing this `README.md`). For development work, at a minimum run the frontend, backend, scheduler, TiTiler, and MinIO.
 
 ### `.env.web.be` (backend)
 
