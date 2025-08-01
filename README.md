@@ -11,11 +11,11 @@ For development work, at a minimum run the frontend, backend, scheduler, TiTiler
 
 Copy `.env*` files under root directory and remove `.sample` suffixes. Subsequently customize each as per below.
 
-## `.env`
+### `.env`
 
 Complete the directory paths in `.env`. Relative paths should start with `./` to avoid being mistaken for a volume name. The current working directory `.` when issuing `docker compose` commands must be the root directory containing this `README.md` and the `.env` files.
 
-## `.env.web.be` (backend)
+### `.env.web.be` (backend)
 
 Aside from the self-explanatory settings...
 
@@ -44,21 +44,24 @@ Set the following:
 JWT_BASE64_PRIVATE_KEY="$(base64 -w0 private_key.pem)"
 JWT_BASE64_PUBLIC_KEY="$(base64 -w0 public_key.pem)"
 ```
-
-## `.env.web.fe` (frontend)
+### `.env.web.fe` (frontend)
 
 Settings are self-explanatory.
 
-## Miscellaneous
+### `.env.scheduler` (job dispatcher)
 
-Create local IP entries in your `/etc/hosts`
-```
-# Accelerator
-xxx.xxx.xxx.xxx localip registry web_be
-```
-where `xxx.xxx.xxx.xxx` is your IP address on the IIASA network.
-
-When changing the network environment, for example by taking a dev laptop home, need to change this.
+1. In `.env.scheduler` change `IMAGE_REGISTRY_URL=registry:8443`, `IMAGE_REGISTRY_USER=myregistry`, `IMAGE_REGISTRY_PASSWORD=myregistrypassword`
+   - When the registry service is running, you can login to it via `docker login registry:8443` and the above username and password.
+2. Convert `~/.kube/config` to JSON and then a base64 string:
+   ```
+   kubectl config view --output json --raw >kubeconfig.json
+   ```
+   Edit the JSON to remove irrevelant contexts / credentials.
+   ```
+   base64 -w 0 kubeconfig.json >kubeconfig.b64
+   ```
+3. Set  `WKUBE_SECRET_JSON_B64` to the content of `kubeconfig.b64`.
+4. Or use command `python3 -c "import sys, yaml, json; print(json.dumps(yaml.safe_load(sys.stdin), indent=2))" < ~/.kube/config > config.json` to convert the kubernetes config to JSON.
 
 ## [TiTiler](https://developmentseed.org/titiler/) (tile server)
 
@@ -67,7 +70,7 @@ When changing the network environment, for example by taking a dev laptop home, 
   `openssl req -x509 -newkey rsa:2048 -keyout private.key -out public.crt -days $DAYS -nodes -subj "/CN=localip"`
 3. Pub self signed certificates under certs, copy and rename it as `minio-cert.crt` under dockerfiles directory
 
-## MinIO (block storage, S3)
+### MinIO (block storage, S3)
 
 1. Create a self-signed certificate:
    ```
@@ -88,28 +91,13 @@ When changing the network environment, for example by taking a dev laptop home, 
 4. In `.env.web.be` and `.env.scheduler`, set these as values of the `*_S3_API_KEY=`
    and `*_S3_SECRET_KEY=` entries.
 
-## `.env.scheduler` (job dispatcher)
-
-1. In `.env.scheduler` change `IMAGE_REGISTRY_URL=registry:8443`, `IMAGE_REGISTRY_USER=myregistry`, `IMAGE_REGISTRY_PASSWORD=myregistrypassword`
-   - When the registry service is running, you can login to it via `docker login registry:8443` and the above username and password.
-2. Convert `~/.kube/config` to JSON and then a base64 string:
-   ```
-   kubectl config view --output json --raw >kubeconfig.json
-   ```
-   Edit the JSON to remove irrevelant contexts / credentials.
-   ```
-   base64 -w 0 kubeconfig.json >kubeconfig.b64
-   ```
-3. Set  `WKUBE_SECRET_JSON_B64` to the content of `kubeconfig.b64`.
-4. Or use command `python3 -c "import sys, yaml, json; print(json.dumps(yaml.safe_load(sys.stdin), indent=2))" < ~/.kube/config > config.json` to convert the kubernetes config to JSON.
-
-## Registry
+### Registry
 
 Generate `htpasswd` file:
 1. `docker pull httpd:2`
 2. `docker run --rm --entrypoint htpasswd httpd:2 -Bbn myregistry myregistrypassword > registry_auth/htpasswd`
 
-## Database
+### Database
 
 1. Execute `docker compose -f docker-compose.dev.yml up db --build` to start the service and optionally (re)build the image.
 2. Enter the db container with `docker exec -it <db container ID> /bin/bash`
@@ -117,6 +105,17 @@ Generate `htpasswd` file:
    - `su -- postgres -c "createdb accelerator"`
    - `su -- postgres -c "createdb acceleratortest"`
    - `su -- postgres -c "createdb accms"`
+
+## Miscellaneous
+
+Create local IP entries in your `/etc/hosts`
+```
+# Accelerator
+xxx.xxx.xxx.xxx localip registry web_be
+```
+where `xxx.xxx.xxx.xxx` is your IP address on the IIASA network.
+
+When changing the network environment, for example by taking a dev laptop home, need to change this.
 
 ## Startup the project
 
@@ -136,6 +135,6 @@ docker exec -it <container ID> /bin/bash
 python apply.py add_role <your IIASA email> APP__SUPERUSER
 ```
 
-### `NOTE`
+## `NOTE`
 
 Inside `control_services_backend` ignore the `.env.sample`, the configs are passed down as the containers are orchestrated.
