@@ -15,6 +15,8 @@ To set up the services, make copies of the `.env.*.sample` files under root dire
 
 Aside from the self-explanatory settings...
 
+Insert the IPv4 address of your dev machine in the value of `INITIAL_S3_ENDPOINT` before the port number.
+
 Set `JOB_SECRET_ENCRYPTION_KEY` to the base64-encoded representation of random 256-bit key values which you can obtain as follows:
 ```
 head </dev/random -c32 | base64
@@ -31,7 +33,7 @@ Need a public/private keypair. Tokens are signed with the private key by the bac
 
 Use OpenSSL to generate the keypair and extract the public key:
 ```
-openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:2048 | base64 -w0
+openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:2048
 openssl pkey -in private_key.pem -pubout -out public_key.pem
 ```
 
