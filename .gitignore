@@ -21,3 +21,4 @@ k8s/manifests/secrets/remark42.secret.yaml
 k8s/manifests/secrets/redis-secret.yaml
 k8s/manifests/secrets/accms-secrets.yaml
 k8s/manifests/secrets/sshgateway-secret.yaml
+k8s/manifests/secrets/acc-threads-secrets.yaml

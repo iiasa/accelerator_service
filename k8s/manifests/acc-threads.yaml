@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: acc-threads
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: acc-threads
+  template:
+    metadata:
+      labels:
+        app: acc-threads
+      annotations:
+        kubernetes.io/restart-at: "2025-02-22T10:50:00+0200"
+    spec:
+      containers:
+      - name: acc-be
+        image: registry.iiasa.ac.at/accelerator/acc-threads:b978a68
+        envFrom:
+          - secretRef:
+              name: acc-threads-secrets
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+      
+      
+      imagePullSecrets:
+        - name: iiasaregcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: acc-threads-service
+spec:
+  type: NodePort
+  selector:
+    app: acc-threads
+  ports:
+    - protocol: TCP
+      port: 8923
+      targetPort: 8000
+      nodePort: 30154
