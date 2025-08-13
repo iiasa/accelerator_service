@@ -56,17 +56,36 @@ Settings are self-explanatory.
    ```
    Edit the JSON to remove irrevelant contexts / credentials.
    ```
-   base64 -w 0 kubeconfig.json >kubeconfig.b64
+   base64 -w0 kubeconfig.json >kubeconfig.b64
    ```
 3. Set  `WKUBE_SECRET_JSON_B64` to the content of `kubeconfig.b64`.
 4. Or use command `python3 -c "import sys, yaml, json; print(json.dumps(yaml.safe_load(sys.stdin), indent=2))" < ~/.kube/config > config.json` to convert the kubernetes config to JSON.
 
 ### [TiTiler](https://developmentseed.org/titiler/) (tile server)
 
-1. Clone the repo `docker compose -f docker-compose.dev.yml up minio --build`.
+See [this issue](https://github.com/iiasa/accelerator_service/issues/58)
+
+1. Clone the repo `https://github.com/developmentseed/titiler`
 2. Create a self-signed certificate expiring in `$DAYS` for TiTiler by issuing:
-  `openssl req -x509 -newkey rsa:2048 -keyout private.key -out public.crt -days $DAYS -nodes -subj "/CN=localip"`
-3. Pub self signed certificates under certs, copy and rename it as `minio-cert.crt` under dockerfiles directory
+   ```
+   cd titiler
+   mkdir certs
+   cd certs
+   openssl req -x509 -newkey rsa:2048 -keyout private.key -out public.crt -days $DAYS -nodes -subj "/CN=localip"
+   cp public.cert ../dockerfiles/minio-cert.crt
+   cd ..
+   ```
+3. Copy and adapt the `Dockerfile` for Uvicorn
+   ```
+   cd dockerfiles
+   cp Dockerfile Dockerfile.uvicorn
+   # Edit Dockerfile.uvicorn
+   cd ..
+   ```
+4. Build the container:
+   ```
+   docker build -f dockerfiles/Dockerfile.uvicorn .
+   ```
 
 ### MinIO (block storage, S3)
 
@@ -81,7 +100,7 @@ Settings are self-explanatory.
    ```
    docker compose -f docker-compose.dev.yml up minio [--build]
    ```
-   Optionally use the `--build` flag to ensure that images are rebuilt before starting
+   Optionally use the `--build` flag to allow image to be built if needed.
    containers so as to pick up code changes, updated dependencies, and any
    modifications to the build specification (`Dockefile`).
 3. Access MinIO via `https:localhost:9001` and create access key (user ID)

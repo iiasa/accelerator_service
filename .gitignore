@@ -6,6 +6,8 @@
 .env.accms
 .env.threads
 
+titiler/
+
 registry_auth/*
 !registry_auth/.gitkeep
 
