@@ -1,10 +1,10 @@
-.env
-.env.web.be
-.env.web.fe
-.env.minio
-.env.scheduler
-.env.accms
-.env.threads
+./.env
+./.env.web.be
+./.env.web.fe
+./.env.minio
+./.env.scheduler
+./.env.accms
+./.env.threads
 
 titiler/
 
