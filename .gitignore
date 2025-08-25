@@ -1,5 +1,5 @@
 .env*
-!sample_environment/.env*
+!sample_dotenv/.env*
 
 titiler/
 
