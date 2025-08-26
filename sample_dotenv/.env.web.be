@@ -14,11 +14,11 @@ PYTHONASYNCIODEBUG=1
 PYTHONDEVMODE=1
 CELERY_BROKER_URL='amqp://user:password@rabbitmq:5672/accelerator-native-jobs'
 
-SMTP_HOST='smtp.office365.com'
-SMTP_PORT='587'
-SMTP_USER='app.accelerator@outlook.com'
-SMTP_PASSWORD='&oiy8768658gff'
-ACCELERATOR_EMAIL='app.accelerator@outlook.com'
+SMTP_HOST=
+SMTP_PORT=
+SMTP_USER=
+SMTP_PASSWORD=
+ACCELERATOR_EMAIL=
 
 FRONTEND_URL='https://localhost:8080'
 
