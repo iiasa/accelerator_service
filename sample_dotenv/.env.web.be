@@ -1,4 +1,4 @@
-# DEBUG_MODE takes 0 or 1 as a value. O = False, 1 = True.
+# DEBUG_MODE takes 0 or 1 as a value. 0 = False, 1 = True.
 DEBUG_MODE=1
 IIASA_MICROSOFT_OPENID_ISSUER_WELL_KNOWN_CONF='https://login.microsoftonline.com/9b79b10b-0007-4e8a-b072-asdfgcdc1aa5/v2.0/.well-known/openid-configuration'
 BUCKET_DETAILS_ENCRYPTION_KEY='<mocked>'
