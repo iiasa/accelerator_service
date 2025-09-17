@@ -4,7 +4,7 @@ IIASA_MICROSOFT_OPENID_ISSUER_WELL_KNOWN_CONF='https://login.microsoftonline.com
 BUCKET_DETAILS_ENCRYPTION_KEY='<mocked>'
 JWT_BASE64_PRIVATE_KEY='<mocked>'
 JWT_BASE64_PUBLIC_KEY='<mocked>'
-ALLOWED_ORIGINS='["http://localhost:8080", "https://localhost:8080", "https://localhost:8081", "http://localhost:8008", "https://localhost:8008"]'
+ALLOWED_ORIGINS=["http://localhost:8080","https://localhost:8080","https://localhost:8081","http://localhost:8008","https://localhost:8008"]
 
 INITIAL_S3_ENDPOINT='https://147.125.54.66:9000'
 INITIAL_S3_API_KEY='<MinIO Access Key>'
