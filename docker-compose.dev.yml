@@ -22,6 +22,11 @@ services:
       - 5432:5432
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d accelerator"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   rabbitmq:
     image: rabbitmq:3-management-alpine
@@ -74,9 +79,12 @@ services:
     env_file:
       - ./.env.web.be
     depends_on:
-      - db
-      - minio
-      - rabbitmq
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
 
   web_fe:
     build:
@@ -180,7 +188,8 @@ services:
     volumes:
       - "${ACCMS_PROJECT_FOLDER:?err}:/app/"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
 
   threads:
@@ -194,7 +203,8 @@ services:
     volumes:
       - "${THREADS_PROJECT_FOLDER:?err}:/app/"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   registry:
     image: registry:2
