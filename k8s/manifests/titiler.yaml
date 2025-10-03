@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: titiler
-        image: registry.iiasa.ac.at/accelerator/titiler:latest
+        image: registry.iiasa.ac.at/accelerator/titiler:e9c6aae
         envFrom:
           - secretRef:
               name: titiler-secret
@@ -26,10 +26,10 @@ spec:
         resources:
           limits:
             memory: "2048Mi"
-            cpu: "1000m"
+            cpu: "2000m"
           requests:
             memory: "2048Mi"
-            cpu: "1000m"
+            cpu: "2000m"
       imagePullSecrets:
         - name: iiasaregcred
 ---

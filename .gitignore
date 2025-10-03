@@ -1,4 +1,6 @@
 .env*
+**/ssh-keys
+**/tls
 !sample_dotenv/.env*
 
 titiler/

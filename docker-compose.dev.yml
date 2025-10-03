@@ -51,15 +51,14 @@ services:
   titiler:
     build:
       context: "${TITILER_FOLDER:?err}"
-      dockerfile: dockerfiles/Dockerfile.uvicorn
+      dockerfile: Dockerfile.dev
     platform: linux/x86_64
     ports:
       - 8002:8000
+    volumes:
+      - "${TITILER_FOLDER:?err}:/app/"
     environment:
-      - PORT=8000
-      - WORKERS_PER_CORE=1
-      - TITILER_API_DEBUG=1
-      - GDAL_HTTP_CURL_OPTIONS="CURLOPT_SSL_VERIFYPEER=0 CURLOPT_SSL_VERIFYHOST=0"
+      - TITILER_API_CORS_ORIGINS=https://localhost:8080,http://localhost:8080,https://accelerator.iiasa.ac.at,https://141-iiasa-forestnavigator.vercel.app
 
 
   web_be:
@@ -73,6 +72,9 @@ services:
       - 20102:20102
     env_file:
       - ./.env.web.be
+
+    stdin_open: true
+    tty: true
     depends_on:
       - db
       - minio
@@ -81,7 +83,7 @@ services:
   web_fe:
     build:
       context: "${WEBCLI_PROJECT_FOLDER:?err}"
-      dockerfile: Dockerfile.dev
+      dockerfile: frontend/Dockerfile.dev
     volumes:
       - "${WEBCLI_PROJECT_FOLDER:?err}:/app/"
     ports:
@@ -169,6 +171,15 @@ services:
     volumes:
       - "${WKUBE_JOB_AGENT_PROJECT_FOLDER:?err}:/app/"
 
+
+  wkub-it-gateway:
+    build:
+      context: "${WKUBE_JOB_GATEWAY_INTERACTIVE_PROJECT_FOLDER:?err}"
+      dockerfile: Dockerfile.dev
+    command: sleep infinity
+    volumes:
+      - "${WKUBE_JOB_GATEWAY_INTERACTIVE_PROJECT_FOLDER:?err}:/app/"
+
   accms:
     build:
       context: "${ACCMS_PROJECT_FOLDER:?err}"
@@ -177,6 +188,8 @@ services:
       - 8001:8000
     env_file:
       - ./.env.accms
+    stdin_open: true
+    tty: true
     volumes:
       - "${ACCMS_PROJECT_FOLDER:?err}:/app/"
     depends_on:
