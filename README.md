@@ -33,8 +33,8 @@ Need a public/private keypair. Tokens are signed with the private key by the bac
 
 Use OpenSSL to generate the keypair and extract the public key:
 ```
-openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:2048
-openssl pkey -in private_key.pem -pubout -out public_key.pem
+openssl ecparam -genkey -name prime256v1 -noout -out private_key.pem
+openssl ec -in private_key.pem -pubout -out public_key.pem
 ```
 
 Set the following:
