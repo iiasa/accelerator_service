@@ -44,13 +44,16 @@ JWT_BASE64_PUBLIC_KEY="$(base64 -w0 public_key.pem)"
 ```
 ### `.env.web.fe` (frontend)
 
-Settings are self-explanatory.
+Must use https with TiTiler and hence set `httpsL//...` in `VITE_TITILER_API_BASE_URL`. Therfore need to generate self-signed certificate for TiTiler. Configuration details pending. Query an LLM on how to obtain a self-signed certificate that also works for `localhost`.
 
 ### `.env.scheduler` (job dispatcher)
 
-1. In `.env.scheduler` change `IMAGE_REGISTRY_URL=registry:8443`, `IMAGE_REGISTRY_USER=myregistry`, `IMAGE_REGISTRY_PASSWORD=myregistrypassword`
-   - When the registry service is running, you can login to it via `docker login registry:8443` and the above username and password.
-2. Convert `~/.kube/config` to JSON and then a base64 string:
+In `.env.scheduler`, aside from the obvious settings:
+
+1. In `.env.scheduler` configure `IMAGE_REGISTRY_*`. `IMAGE_REGISTRY_TAG_PREFIX` is needed when the registry is subdivided in namespaces. For example Harbor uses projects. If so, set the name of your space/project followed by a slash as value.
+   - When the registry service is running, you should be ablee to login via  `docker login <registry>:8443` and the configured username and password.
+2. Set `JOBSTORE_*` values to point to an S3 bucket for transient file storage when launching WKube jobs.
+3. Convert `~/.kube/config` to JSON and then a base64 string:
    ```
    kubectl config view --output json --raw >kubeconfig.json
    ```
@@ -58,8 +61,8 @@ Settings are self-explanatory.
    ```
    base64 -w0 kubeconfig.json >kubeconfig.b64
    ```
-3. Set  `WKUBE_SECRET_JSON_B64` to the content of `kubeconfig.b64`.
-4. Or use command `python3 -c "import sys, yaml, json; print(json.dumps(yaml.safe_load(sys.stdin), indent=2))" < ~/.kube/config > config.json` to convert the kubernetes config to JSON.
+4. Set  `WKUBE_SECRET_JSON_B64` to the content of `kubeconfig.b64`.
+5. Or use command `python3 -c "import sys, yaml, json; print(json.dumps(yaml.safe_load(sys.stdin), indent=2))" < ~/.kube/config > config.json` to convert the kubernetes config to JSON.
 
 ### [TiTiler](https://developmentseed.org/titiler/) (tile server)
 
