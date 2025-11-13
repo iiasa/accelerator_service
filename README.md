@@ -9,7 +9,9 @@
 
 ## Services
 
-To set up the services, copy the required `.env*` files from the `sample_dotenv/` folder into the project root directory. Subsequently, customize each copy as described below. Complete the directory paths in the `.env` file (copy of `sample_dotenv/.env`). Relative paths should start with `./` to avoid being mistaken for a volume name. The current working directory `.` when issuing `docker compose` commands must be the root directory (containing this `README.md`). For development work, at a minimum run the frontend, backend, scheduler, TiTiler, and MinIO.
+To set up the services, copy the default Docker compose `.env.*` files from the `sample_dotenv/` folder into the project root directory. Beware: these files have leading dot and are normally hidden. Customize the copied `.env.*` files as described below, taking into account that default values enclosed by angular brackets (`'<something>'`) must be overridden.
+
+Complete the directory paths in the `.env` file (copy of `sample_dotenv/.env`). Relative paths should start with `./` to avoid being mistaken for a volume name. The current working directory `.` when issuing `docker compose` commands must be the root directory (containing this `README.md`). For development work, at a minimum run the frontend, backend, scheduler, TiTiler, and MinIO.
 
 ### `.env.web.be` (backend)
 
@@ -44,7 +46,7 @@ JWT_BASE64_PUBLIC_KEY="$(base64 -w0 public_key.pem)"
 ```
 ### `.env.web.fe` (frontend)
 
-Must use https with TiTiler and hence set `httpsL//...` in `VITE_TITILER_API_BASE_URL`. Therfore need to generate self-signed certificate for TiTiler. Configuration details pending. Query an LLM on how to obtain a self-signed certificate that also works for `localhost`.
+Must use https with TiTiler and hence set `https://...` in `VITE_TITILER_API_BASE_URL`. Therfore need to generate self-signed certificate for TiTiler. Configuration details pending. Query an LLM on how to obtain a self-signed certificate that also works for `localhost`.
 
 ### `.env.scheduler` (job dispatcher)
 
