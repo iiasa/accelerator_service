@@ -9,9 +9,22 @@
 
 ## Services
 
-To set up the services, copy the default Docker compose `.env.*` files from the `sample_dotenv/` folder into the project root directory. Beware: these files have leading dot and are normally hidden. Customize the copied `.env.*` files as described below, taking into account that default values enclosed by angular brackets (`'<something>'`) must be overridden.
+To set up the services, copy the default Docker compose `.env*` files from the `sample_dotenv/` folder into the working directory root (containing this `README.md`). Beware: these files have a leading dot and are normally hidden. Customize the copied `.env*` files as described below, taking into account that default values enclosed by angular brackets (`<something>`) must be overridden.
 
-Complete the directory paths in the `.env` file (copy of `sample_dotenv/.env`). Relative paths should start with `./` to avoid being mistaken for a volume name. The current working directory `.` when issuing `docker compose` commands must be the root directory (containing this `README.md`). For development work, at a minimum run the frontend, backend, scheduler, TiTiler, and MinIO.
+The current working directory when issuing `docker compose` commands must be the `accelerator_service` working directory root. For development work, at a minimum run the frontend, backend, scheduler, TiTiler, and MinIO.
+
+### `.env`
+
+Sets various paths pointing to Accelerator subsystems accessible on your development machine. The `*PROJECT_FOLDER` settings should point to the working directory of the accelerator-related Git repositories. The default values indicate the name of the repository. For example, 
+
+```
+ACCMS_PROJECT_FOLDER='<path to>/accms'
+```
+
+indicates that you have to locate the `accms` repository under the IIASA Github organization https://github.com/iiasa, clone it somewhere convenient, and point `ACCMS_PROJECT_FOLDER` at the resulting working directory.
+
+> [!Note]
+> Relative paths (relative to the `accelerator_service` working directory root) should start with `./` to avoid being mistaken for a volume name.
 
 ### `.env.web.be` (backend)
 
@@ -141,7 +154,7 @@ When changing the network environment, for example by taking a dev laptop home, 
 
 ## Startup the project
 
-`docker compose -f docker-compose.dev.yml up --build`
+`docker compose -f docker-compose.dev.yml up [--build]`
 
 ## Browse
 
