@@ -77,7 +77,7 @@ See [this issue](https://github.com/iiasa/accelerator_service/issues/58)
    mkdir certs
    cd certs
    openssl req -x509 -newkey rsa:2048 -keyout private.key -out public.crt -days $DAYS -nodes -subj "/CN=localip"
-   cp public.cert ../dockerfiles/minio-cert.crt
+   cp public.crt ../dockerfiles/minio-cert.crt
    cd ..
    ```
 3. Copy and adapt the `Dockerfile` for Uvicorn
@@ -121,7 +121,7 @@ Generate `htpasswd` file:
 
 ### Database
 
-1. Execute `docker compose -f docker-compose.dev.yml up db --build` to start the service and optionally (re)build the image.
+1. Execute `docker compose -f docker-compose.dev.yml up db [--build]` to start the service and optionally (re)build the image.
 2. Enter the db container with `docker exec -it <db container ID> /bin/bash`
 3. Create databases inside the container with:
    - `su -- postgres -c "createdb accelerator"`
