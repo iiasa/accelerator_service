@@ -28,3 +28,6 @@ JOBSTORE_S3_ENDPOINT='https://localip:9000'
 JOBSTORE_S3_API_KEY='<MinIO Access Key>'
 JOBSTORE_S3_SECRET_KEY='<MinIO Secret Key>'
 JOBSTORE_S3_BUCKET_NAME='jobstore'
+
+OPENAI_API_KEY='<mocked>'
+OPENAI_API_BASE='https://api.openai.com/v1'

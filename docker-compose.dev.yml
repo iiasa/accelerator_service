@@ -75,8 +75,12 @@ services:
     ports:
       - 8000:8000
       - 20102:20102
+      - 8081:8081
+      - 8080:8080
+      - 5173:5173
     env_file:
       - ./.env.web.be
+      - ./.env.web.fe
 
     stdin_open: true
     tty: true
@@ -88,20 +92,20 @@ services:
       rabbitmq:
         condition: service_started
 
-  web_fe:
-    build:
-      context: "${WEBCLI_PROJECT_FOLDER:?err}"
-      dockerfile: frontend/Dockerfile.dev
-    volumes:
-      - "${WEBCLI_PROJECT_FOLDER:?err}:/app/"
-    ports:
-      - 8081:8081
-      - 8080:8080
-      - 5173:5173
-    env_file:
-      - ./.env.web.fe
-    depends_on:
-      - web_be
+  # web_fe:
+  #   build:
+  #     context: "${WEBCLI_PROJECT_FOLDER:?err}"
+  #     dockerfile: frontend/Dockerfile.dev
+  #   volumes:
+  #     - "${WEBCLI_PROJECT_FOLDER:?err}:/app/"
+  #   ports:
+  #     - 8081:8081
+  #     - 8080:8080
+  #     - 5173:5173
+  #   env_file:
+  #     - ./.env.web.fe
+  #   depends_on:
+  #     - web_be
   # convertert:
   #   build:
   #     context: "/Users/wrufesh/iiasa/accli/example_job_folder"
@@ -115,6 +119,7 @@ services:
       context: "${ACLI_PROJECT_FOLDER:?err}"
       dockerfile: Dockerfile.dev
     command: sleep infinity
+    privileged: true
     volumes:
       - "${ACLI_PROJECT_FOLDER:?err}:/app/"
 
@@ -180,7 +185,7 @@ services:
       - "${WKUBE_JOB_AGENT_PROJECT_FOLDER:?err}:/app/"
 
 
-  wkub-it-gateway:
+  wkube-it-gateway:
     build:
       context: "${WKUBE_JOB_GATEWAY_INTERACTIVE_PROJECT_FOLDER:?err}"
       dockerfile: Dockerfile.dev

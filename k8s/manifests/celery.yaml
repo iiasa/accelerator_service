@@ -12,6 +12,16 @@ spec:
       labels:
         app: rabbitmq-pubsub
     spec:
+
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname    # 👈 change this key to match your node label
+                operator: In
+                values:
+                - vm105
       containers:
       - name: rabbitmq-pubsub
         image: registry.iiasa.ac.at/accelerator/rabbitmq:3-management-alpine
@@ -26,7 +36,7 @@ spec:
           containerPort: 15672
         resources:
           limits:
-            memory: "1024Mi"
+            memory: "1025Mi"
             cpu: "1000m"
           requests:
             memory: "1024Mi"
@@ -48,11 +58,21 @@ spec:
       labels:
         app: accelerator-celery
       annotations:
-        kubernetes.io/restart-at: "2025-03-18T16:48:22+0100"
+        kubernetes.io/restart-at: "2025-04-18T16:48:22+0661"
     spec:
+
+      # affinity:
+      #   nodeAffinity:
+      #     requiredDuringSchedulingIgnoredDuringExecution:
+      #       nodeSelectorTerms:
+      #       - matchExpressions:
+      #         - key: kubernetes.io/hostname    # 👈 change this key to match your node label
+      #           operator: In
+      #           values:
+      #           - vm105
       containers:
       - name: accelerator-celery
-        image: registry.iiasa.ac.at/accelerator/iiasa-acc-celery:8b87047
+        image: registry.iiasa.ac.at/accelerator/iiasa-acc-celery:659daf5
         securityContext:
             privileged: true
         envFrom:
@@ -60,7 +80,7 @@ spec:
               name: celery-cluster-secret
         env:
           - name: WKUBE_AGENT_PULLER
-            value: "registry.iiasa.ac.at/accelerator/wkube-agent-puller:a7a7ec6"
+            value: "registry.iiasa.ac.at/accelerator/wkube-agent-puller:85af8f4"
         imagePullPolicy: Always
         resources:
           limits:

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: acc-be
-        image: registry.iiasa.ac.at/accelerator/acc-threads:b978a68
+        image: registry.iiasa.ac.at/accelerator/acc-threads:0134fea
         envFrom:
           - secretRef:
               name: acc-threads-secrets

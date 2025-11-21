@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nfs-subdir-external-provisioner
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: nfs-subdir-external-provisioner-runner
+rules:
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["get", "list", "watch", "update"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["storageclasses"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["endpoints"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get"]     # 👈 this is the bit you’re missing
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: run-nfs-subdir-external-provisioner
+subjects:
+  - kind: ServiceAccount
+    name: nfs-subdir-external-provisioner
+    namespace: kube-system   # adjust to whatever namespace the SA lives in
+roleRef:
+  kind: ClusterRole
+  name: nfs-subdir-external-provisioner-runner
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nfs-subdir-external-provisioner
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nfs-subdir-external-provisioner
+  template:
+    metadata:
+      labels:
+        app: nfs-subdir-external-provisioner
+    spec:
+      serviceAccountName: nfs-subdir-external-provisioner
+      containers:
+        - name: nfs-subdir-external-provisioner
+          image: registry.k8s.io/sig-storage/nfs-subdir-external-provisioner:v4.0.2
+          ports:
+            - name: http
+              containerPort: 80
+          env:
+            - name: ENABLE_LEADER_ELECTION
+              value: "true"
+            - name: PROVISIONER_NAME
+              value: rwx                       # 👈 FIXED provisioner name
+            - name: NFS_SERVER
+              value: localip                   # 👈 replace with your NFS server IP or hostname
+            - name: NFS_PATH
+              value: /srv/nfs                  # 👈 replace with your exported NFS root
+          securityContext:
+            privileged: true

@@ -20,7 +20,7 @@ spec:
       
       containers:
         - name: wkube-it-gateway
-          image: registry.iiasa.ac.at/accelerator/wkube-it-gateway:228db77
+          image: registry.iiasa.ac.at/accelerator/wkube-it-gateway:4ba1bff
           imagePullPolicy: Always
           env:
             - name: PUBLIC_KEY
