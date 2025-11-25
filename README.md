@@ -141,6 +141,11 @@ Generate `htpasswd` file:
    - `su -- postgres -c "createdb acceleratortest"`
    - `su -- postgres -c "createdb accms"`
    - `su -- postgres -c "createdb thrd"`
+4. When a database already exists, you may wish to drop it first to start with a clean slate:
+   - `su -- postgres -c "dropdb accelerator"`
+   - `su -- postgres -c "dropdb acceleratortest"`
+   - `su -- postgres -c "dropdb accms"`
+   - `su -- postgres -c "dropdb thrd"`
 
 ## Miscellaneous
 
