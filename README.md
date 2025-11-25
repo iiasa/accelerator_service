@@ -21,7 +21,7 @@ Sets various paths pointing to Accelerator subsystems accessible on your develop
 ACCMS_PROJECT_FOLDER='<path to>/accms'
 ```
 
-indicates that you have to locate the `accms` repository under the IIASA Github organization https://github.com/iiasa, clone it somewhere convenient, and point `ACCMS_PROJECT_FOLDER` at the resulting working directory.
+indicates that you have to locate the `accms` repository by [searching for repositories marked with the `accelerator` topic under the IIASA Github organization](https://github.com/search?q=org%3Aiiasa%20topic%3Aaccelerator&type=repositories), clone it somewhere convenient, and point `ACCMS_PROJECT_FOLDER` at the resulting working directory.
 
 > [!Note]
 > Relative paths (relative to the `accelerator_service` working directory root) should start with `./` to avoid being mistaken for a volume name.
@@ -81,28 +81,16 @@ In `.env.scheduler`, aside from the obvious settings:
 
 ### [TiTiler](https://developmentseed.org/titiler/) (tile server)
 
-See [this issue](https://github.com/iiasa/accelerator_service/issues/58)
-
-1. Clone the repo `https://github.com/developmentseed/titiler`
-2. Create a self-signed certificate expiring in `$DAYS` for TiTiler by issuing:
+1. Clone the repo `https://github.com/iiasa/meta-titiler`
+2. Point `TITILER_FOLDER` in `.env` at the resulting working directory.
+3. Check that a certificates is presents in `certs`. If absent, create a self-signed certificate expiring in `$DAYS` for TiTiler by issuing:
    ```
-   cd titiler
+   cd meta-titiler
    mkdir certs
    cd certs
    openssl req -x509 -newkey rsa:2048 -keyout private.key -out public.crt -days $DAYS -nodes -subj "/CN=localip"
    cp public.crt ../dockerfiles/minio-cert.crt
    cd ..
-   ```
-3. Copy and adapt the `Dockerfile` for Uvicorn
-   ```
-   cd dockerfiles
-   cp Dockerfile Dockerfile.uvicorn
-   # Edit Dockerfile.uvicorn
-   cd ..
-   ```
-4. Build the container:
-   ```
-   docker build -f dockerfiles/Dockerfile.uvicorn .
    ```
 
 ### MinIO (block storage, S3)
