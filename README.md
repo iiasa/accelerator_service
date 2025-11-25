@@ -15,7 +15,7 @@ The current working directory when issuing `docker compose` commands must be the
 
 ### `.env`
 
-Sets various paths pointing to Accelerator subsystems accessible on your development machine. The `*PROJECT_FOLDER` settings should point to the working directories of Accelerator-related Git repositories. The default values indicate the name of the repository. For example,
+Sets various paths pointing to Accelerator subsystems accessible on your development machine. The `*PROJECT_FOLDER` and `TITILER_FOLDER` settings should point to the working directories of Accelerator-related Git repositories. The default values indicate the name of the repository. For example,
 
 ```
 ACCMS_PROJECT_FOLDER='<path to>/accms'
