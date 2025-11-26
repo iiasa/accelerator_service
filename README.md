@@ -80,12 +80,11 @@ In `.env.scheduler`, aside from the obvious settings:
    - Or use command `python3 -c "import sys, yaml, json; print(json.dumps(yaml.safe_load(sys.stdin), indent=2))" < ~/.kube/config > config.json` to convert the kubernetes config to JSON.
 5. Set `ACCELERATOR_APP_TOKEN` by obtaining a token as follows:
    - Startup all services (see below).
-   - With `docker ps`, determine the container ID of the backend.
+   - With `docker ps`, determine the container ID of the backend:  
+     `docker ps | grep web_be`
    - Shell into the backend container:  
      `docker exec -it <container ID> /bin/bash`
-   - Add a superuser role:  
-     `python apply.py add_role <superuser email> APP__SUPERUSER `
-   - Obtain an access token:  
+   - Obtain an access token for the superuser (see below):  
      `python apply.py get_access_token <superuser email> <seconds to expiry>`
    - Copy and paste the token as the value of `ACCELERATOR_APP_TOKEN`.
    - Restart the scheduler service:  
@@ -170,12 +169,15 @@ Browse to the frontend at `https://localhost:8080`. In case of a security warnin
 ```
 docker ps | grep web_be
 ```
-Make note of the backend container ID, then shell into the running container and grant:
+Make note of the backend container ID, then shell into the running container and grant superuser rights:
 ```
 docker exec -it <container ID> /bin/bash
-python apply.py add_role <your IIASA email> APP__SUPERUSER
+python apply.py add_role <superuser email> APP__SUPERUSER
 ```
 
-## `NOTE`
+> [!WARNING]
+> There are two successive underscores in `APP__SUPERUSER`.
 
-Inside `control_services_backend` ignore the `.env.sample`, the configs are passed down as the containers are orchestrated.
+## Miscellaneous
+
+- Inside `control_services_backend` ignore the `.env.sample`, the configs are passed down as the containers are orchestrated.
