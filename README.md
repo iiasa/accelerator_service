@@ -23,7 +23,7 @@ ACCMS_PROJECT_FOLDER='<path to>/accms'
 
 indicates that you have to locate the `accms` repository by [searching for repositories marked with the `accelerator` topic under the IIASA Github organization](https://github.com/search?q=org%3Aiiasa%20topic%3Aaccelerator&type=repositories), clone it somewhere convenient, and point `ACCMS_PROJECT_FOLDER` at the resulting working directory.
 
-> [!Note]
+> [!CAUTION]
 > Relative paths (relative to the `accelerator_service` working directory root) should start with `./` to avoid being mistaken for a volume name.
 
 ### `.env.web.be` (backend)
@@ -146,7 +146,7 @@ Generate `htpasswd` file:
    - `su -- postgres -c "dropdb accms"`
    - `su -- postgres -c "dropdb thrd"`
 
-## Miscellaneous
+## Further configuration
 
 Create local IP entries in your `/etc/hosts`
 ```
@@ -155,7 +155,8 @@ xxx.xxx.xxx.xxx localip registry web_be
 ```
 where `xxx.xxx.xxx.xxx` is your IP address on the IIASA network.
 
-When changing the network environment, for example by taking a dev laptop home, need to change this.
+> [^NOTE]
+> When changing the network environment, for example by taking a dev laptop home, you will need to change this.
 
 ## Startup the project
 
@@ -178,6 +179,6 @@ python apply.py add_role <superuser email> APP__SUPERUSER
 > [!WARNING]
 > There are two successive underscores in `APP__SUPERUSER`.
 
-## Miscellaneous
+## Additional notes
 
 - Inside `control_services_backend` ignore the `.env.sample`, the configs are passed down as the containers are orchestrated.
