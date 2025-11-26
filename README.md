@@ -77,7 +77,19 @@ In `.env.scheduler`, aside from the obvious settings:
    base64 -w0 kubeconfig.json >kubeconfig.b64
    ```
 4. Set  `WKUBE_SECRET_JSON_B64` to the content of `kubeconfig.b64`.
-5. Or use command `python3 -c "import sys, yaml, json; print(json.dumps(yaml.safe_load(sys.stdin), indent=2))" < ~/.kube/config > config.json` to convert the kubernetes config to JSON.
+   - Or use command `python3 -c "import sys, yaml, json; print(json.dumps(yaml.safe_load(sys.stdin), indent=2))" < ~/.kube/config > config.json` to convert the kubernetes config to JSON.
+5. Set `ACCELERATOR_APP_TOKEN` by obtaining a token as follows:
+   - Startup all services (see below).
+   - With `docker ps`, determine the container ID of the backend.
+   - Shell into the backend container:  
+     `docker exec -it <container ID> /bin/bash`
+   - Add a superuser role:  
+     `python apply.py add_role <superuser email> APP__SUPERUSER `
+   - Obtain an access token:  
+     `python apply.py get_access_token <superuser email> <seconds to expiry>`
+   - Copy and paste the token as the value of `ACCELERATOR_APP_TOKEN`.
+   - Restart the scheduler service:  
+     `docker compose -f docker-compose.dev.yml restart scheduler`
 
 ### [TiTiler](https://developmentseed.org/titiler/) (tile server)
 
