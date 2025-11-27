@@ -94,7 +94,7 @@ In `.env.scheduler`, aside from the obvious settings:
 
 1. Clone the repo `https://github.com/iiasa/meta-titiler`
 2. Point `TITILER_FOLDER` in `.env` at the resulting working directory.
-3. Check that a certificates is present in `certs`. If absent, create a self-signed certificate expiring in `$DAYS` for TiTiler by issuing:
+3. Check that a certificate is present in `certs`. If absent, create a self-signed certificate expiring in `$DAYS` for TiTiler by issuing:
    ```
    cd meta-titiler
    mkdir certs
