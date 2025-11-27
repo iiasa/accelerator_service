@@ -59,20 +59,20 @@ JWT_BASE64_PUBLIC_KEY="$(base64 -w0 public_key.pem)"
 ```
 ### `.env.web.fe` (frontend)
 
-Must use https with TiTiler and hence set `https://...` in `VITE_TITILER_API_BASE_URL`. Therfore need to generate self-signed certificate for TiTiler. Configuration details pending. Query an LLM on how to obtain a self-signed certificate that also works for `localhost`.
+Must use https with TiTiler and hence set `https://...` in `VITE_TITILER_API_BASE_URL`. Therefore need to generate self-signed certificate for TiTiler. Configuration details pending. Query an LLM on how to obtain a self-signed certificate that also works for `localhost`.
 
 ### `.env.scheduler` (job dispatcher)
 
 In `.env.scheduler`, aside from the obvious settings:
 
 1. In `.env.scheduler` configure `IMAGE_REGISTRY_*`. `IMAGE_REGISTRY_TAG_PREFIX` is needed when the registry is subdivided in namespaces. For example Harbor uses projects. If so, set the name of your space/project followed by a slash as value.
-   - When the registry service is running, you should be ablee to login via  `docker login <registry>:8443` and the configured username and password.
+   - When the registry service is running, you should be able to login via  `docker login <registry>:8443` and the configured username and password.
 2. Set `JOBSTORE_*` values to point to an S3 bucket for transient file storage when launching WKube jobs.
 3. Convert `~/.kube/config` to JSON and then a base64 string:
    ```
    kubectl config view --output json --raw >kubeconfig.json
    ```
-   Edit the JSON to remove irrevelant contexts / credentials.
+   Edit the JSON to remove irrelevant contexts / credentials.
    ```
    base64 -w0 kubeconfig.json >kubeconfig.b64
    ```
@@ -94,7 +94,7 @@ In `.env.scheduler`, aside from the obvious settings:
 
 1. Clone the repo `https://github.com/iiasa/meta-titiler`
 2. Point `TITILER_FOLDER` in `.env` at the resulting working directory.
-3. Check that a certificates is presents in `certs`. If absent, create a self-signed certificate expiring in `$DAYS` for TiTiler by issuing:
+3. Check that a certificates is present in `certs`. If absent, create a self-signed certificate expiring in `$DAYS` for TiTiler by issuing:
    ```
    cd meta-titiler
    mkdir certs
@@ -119,7 +119,7 @@ In `.env.scheduler`, aside from the obvious settings:
    ```
    Optionally use the `--build` flag to allow image to be built if needed.
    containers so as to pick up code changes, updated dependencies, and any
-   modifications to the build specification (`Dockefile`).
+   modifications to the build specification (`Dockerfile`).
 3. Access MinIO via `https:localhost:9001` and create access key (user ID)
    and matching secret key (password) credentials.
 4. In `.env.web.be` and `.env.scheduler`, set these as values of the `*_S3_API_KEY=`
@@ -155,7 +155,7 @@ xxx.xxx.xxx.xxx localip registry web_be
 ```
 where `xxx.xxx.xxx.xxx` is your IP address on the IIASA network.
 
-> [^NOTE]
+> [!NOTE]
 > When changing the network environment, for example by taking a dev laptop home, you will need to change this.
 
 ## Startup the project
