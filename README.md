@@ -79,16 +79,19 @@ In `.env.scheduler`, aside from the obvious settings:
 4. Set  `WKUBE_SECRET_JSON_B64` to the content of `kubeconfig.b64`.
    - Or use command `python3 -c "import sys, yaml, json; print(json.dumps(yaml.safe_load(sys.stdin), indent=2))" < ~/.kube/config > config.json` to convert the kubernetes config to JSON.
 5. Set `ACCELERATOR_APP_TOKEN` by obtaining a token as follows:
-   - Startup all services (see below).
-   - With `docker ps`, determine the container ID of the backend:  
-     `docker ps | grep web_be`
-   - Shell into the backend container:  
-     `docker exec -it <container ID> /bin/bash`
-   - Obtain an access token for the superuser (see below):  
-     `python apply.py get_access_token <superuser email> <seconds to expiry>`
+   - Startup the backend service:  
+     `docker compose up web_be`
+     - This also starts the integrated frontend.
+   - Create an account for yourself by signing in to the front end at `https:\\localhost:8080`.
+     - Press the "Login with IIASA" button.
+   - With `docker ps`, determine the container ID of the backend and shell into the container:  
+     `docker ps | grep web_be`  
+     `docker exec -it <backend container ID> /bin/bash`
+   - Grant your account superuser rights:  
+     `python apply.py add_role <your email> APP__SUPERUSER`
+   - Obtain an access token with superuser rights:  
+     `python apply.py get_access_token <your email> <seconds to expiry>`
    - Copy and paste the token as the value of `ACCELERATOR_APP_TOKEN`.
-   - Restart the scheduler service:  
-     `docker compose -f docker-compose.dev.yml restart scheduler`
 
 ### [TiTiler](https://developmentseed.org/titiler/) (tile server)
 
@@ -166,18 +169,7 @@ where `xxx.xxx.xxx.xxx` is your IP address on the IIASA network.
 
 Browse to the backend at `https://localhost:8000`. In case of a security warning on account of the self-signed certificate, add an exception in your browser.
 
-Browse to the frontend at `https://localhost:8080`. In case of a security warning on account of the self-signed certificate, add an exception in your browser. Then log in via the `Login with IIASA` button. To grant yourself administrator rights when logged in do:
-```
-docker ps | grep web_be
-```
-Make note of the backend container ID, then shell into the running container and grant superuser rights:
-```
-docker exec -it <container ID> /bin/bash
-python apply.py add_role <superuser email> APP__SUPERUSER
-```
-
-> [!WARNING]
-> There are two successive underscores in `APP__SUPERUSER`.
+Browse to the frontend at `https://localhost:8080`. In case of a security warning on account of the self-signed certificate, add an exception in your browser. Then log in via the `Login with IIASA` button.
 
 ## Additional notes
 
