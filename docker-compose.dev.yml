@@ -40,6 +40,12 @@ services:
     volumes:
         - rabbitmq_data:/var/lib/rabbitmq
         - rabbitmq_log:/var/log/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
   minio:
     image: minio/minio
@@ -88,7 +94,7 @@ services:
       minio:
         condition: service_started
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
 
   acli:
     build:
@@ -110,9 +116,12 @@ services:
     volumes:
       - "${SCHEDULER_PROJECT_FOLDER:?err}:/home/ubuntu/app/"
     depends_on:
-      - web_be
-      - rabbitmq
-      - registry
+      web_be:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+      registry:
+        condition: service_started
 
   # image-builder-scheduler:
   #   build:
@@ -141,8 +150,10 @@ services:
     volumes:
       - "${SCHEDULER_PROJECT_FOLDER:?err}:/app/"
     depends_on:
-      - web_be
-      - rabbitmq
+      web_be:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
 
   wkubecmd:
     build:
