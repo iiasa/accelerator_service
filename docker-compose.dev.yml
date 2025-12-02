@@ -90,28 +90,6 @@ services:
       rabbitmq:
         condition: service_started
 
-  # web_fe:
-  #   build:
-  #     context: "${WEBCLI_PROJECT_FOLDER:?err}"
-  #     dockerfile: frontend/Dockerfile.dev
-  #   volumes:
-  #     - "${WEBCLI_PROJECT_FOLDER:?err}:/app/"
-  #   ports:
-  #     - 8081:8081
-  #     - 8080:8080
-  #     - 5173:5173
-  #   env_file:
-  #     - ./.env.web.fe
-  #   depends_on:
-  #     - web_be
-  # convertert:
-  #   build:
-  #     context: "/Users/wrufesh/iiasa/accli/example_job_folder"
-  #     dockerfile: Dockerfile
-  #   command: sleep infinity
-  #   volumes:
-  #     - "/Users/wrufesh/iiasa/accli/example_job_folder:/app/"
-
   acli:
     build:
       context: "${ACLI_PROJECT_FOLDER:?err}"
