@@ -237,6 +237,7 @@ services:
 
   redis:
     image: redis:latest
+    profiles: ["optional"]
     environment:
       - REDIS_PASSWORD=defaultpassword
     ports:
