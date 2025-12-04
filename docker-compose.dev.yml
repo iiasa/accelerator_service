@@ -41,11 +41,12 @@ services:
         - rabbitmq_data:/var/lib/rabbitmq
         - rabbitmq_log:/var/log/rabbitmq
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      # status implies a deeper check than ping; && ensure TCP 5672 is open
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q status && nc -z localhost 5672"]
       interval: 10s
       timeout: 5s
-      retries: 5
-      start_period: 20s
+      retries: 6
+      start_period: 30s
 
   minio:
     image: minio/minio
