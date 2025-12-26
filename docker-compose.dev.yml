@@ -11,6 +11,14 @@ volumes:
     external: false
   remark42_data:
     external: false
+  neo4j_data:
+    external: false
+  neo4j_logs:
+    external: false
+  neo4j_import:
+    external: false
+  neo4j_plugins:
+    external: false
 
 services:
   db:
@@ -23,7 +31,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d accelerator"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d accelerator" ]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -35,11 +43,11 @@ services:
       - RABBITMQ_DEFAULT_PASS=password
       - RABBITMQ_DEFAULT_VHOST=accelerator-native-jobs
     ports:
-        - 5672:5672
-        - 15672:15672
+      - 5672:5672
+      - 15672:15672
     volumes:
-        - rabbitmq_data:/var/lib/rabbitmq
-        - rabbitmq_log:/var/log/rabbitmq
+      - rabbitmq_data:/var/lib/rabbitmq
+      - rabbitmq_log:/var/log/rabbitmq
     healthcheck:
       # status implies a deeper check than ping; && ensure TCP 5672 is open
       test: ["CMD-SHELL", "rabbitmq-diagnostics -q status && nc -z localhost 5672"]
@@ -195,7 +203,7 @@ services:
     build:
       context: "${THREADS_PROJECT_FOLDER:?err}"
       dockerfile: Dockerfile.dev
-    ports:  
+    ports:
       - 8003:8000
     env_file:
       - ./.env.threads
@@ -241,3 +249,25 @@ services:
     command: sleep infinity
     volumes:
       - "${ACCELERATOR_COMMON_ROUTINES:?err}/csv_regional_timeseries_validator:/app/"
+
+
+  neo4j:
+    image: neo4j:community
+    restart: unless-stopped
+
+    ports:
+      - "7474:7474" # Neo4j Browser (HTTP)
+      - "7687:7687" # Bolt
+
+    environment:
+      NEO4J_AUTH: neo4j/strongpassword
+      # Optional tuning (safe defaults)
+      NEO4J_server_memory_heap_initial__size: 512m
+      NEO4J_server_memory_heap_max__size: 1G
+      NEO4J_server_memory_pagecache_size: 512m
+
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+      - neo4j_import:/var/lib/neo4j/import
+      - neo4j_plugins:/plugins
