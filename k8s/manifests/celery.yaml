@@ -72,7 +72,7 @@ spec:
       #           - vm105
       containers:
       - name: accelerator-celery
-        image: registry.iiasa.ac.at/accelerator/iiasa-acc-celery:659daf5
+        image: registry.iiasa.ac.at/accelerator/iiasa-acc-celery:d50f555
         securityContext:
             privileged: true
         envFrom:
@@ -80,7 +80,7 @@ spec:
               name: celery-cluster-secret
         env:
           - name: WKUBE_AGENT_PULLER
-            value: "registry.iiasa.ac.at/accelerator/wkube-agent-puller:85af8f4"
+            value: "registry.iiasa.ac.at/accelerator/wkube-agent-puller:40f10f1"
         imagePullPolicy: Always
         resources:
           limits:
