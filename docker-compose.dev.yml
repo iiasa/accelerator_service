@@ -50,7 +50,7 @@ services:
       - rabbitmq_log:/var/log/rabbitmq
     healthcheck:
       # status implies a deeper check than ping; && ensure TCP 5672 is open
-      test: ["CMD-SHELL", "rabbitmq-diagnostics -q status && nc -z localhost 5672"]
+      test: [ "CMD-SHELL", "rabbitmq-diagnostics -q status && nc -z localhost 5672" ]
       interval: 10s
       timeout: 5s
       retries: 6
@@ -104,6 +104,28 @@ services:
         condition: service_started
       rabbitmq:
         condition: service_healthy
+
+#  web_be:
+#    build:
+#      context: "${PROJECT_FOLDER:?err}"
+#      dockerfile: dockerfiles/Dockerfile.be
+#    volumes:
+#      - "${PROJECT_FOLDER:?err}:/app/"
+#    ports:
+#      - 8000:8000
+#      - 20102:20102
+#      - 5173:5173
+#    env_file:
+#      - ./.env.web.be
+#    stdin_open: true
+#    tty: true
+#    depends_on:
+#      db:
+#        condition: service_healthy
+#      minio:
+#        condition: service_started
+#      rabbitmq:
+#        condition: service_healthy
 
   acli:
     build:
@@ -235,7 +257,7 @@ services:
 
   redis:
     image: redis:latest
-    profiles: ["optional"]
+    profiles: [ "optional" ]
     environment:
       - REDIS_PASSWORD=defaultpassword
     ports:
