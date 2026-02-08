@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: acc-be
-        image: registry.iiasa.ac.at/accelerator/iiasa-acc-be:0df2244
+        image: registry.iiasa.ac.at/accelerator/iiasa-acc-be:77b9db8
         envFrom:
           - secretRef:
               name: accelerator-be-secret
