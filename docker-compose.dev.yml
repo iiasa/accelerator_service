@@ -105,27 +105,27 @@ services:
       rabbitmq:
         condition: service_healthy
 
-#  web_be:
-#    build:
-#      context: "${PROJECT_FOLDER:?err}"
-#      dockerfile: dockerfiles/Dockerfile.be
-#    volumes:
-#      - "${PROJECT_FOLDER:?err}:/app/"
-#    ports:
-#      - 8000:8000
-#      - 20102:20102
-#      - 5173:5173
-#    env_file:
-#      - ./.env.web.be
-#    stdin_open: true
-#    tty: true
-#    depends_on:
-#      db:
-#        condition: service_healthy
-#      minio:
-#        condition: service_started
-#      rabbitmq:
-#        condition: service_healthy
+  #  web_be:
+  #    build:
+  #      context: "${PROJECT_FOLDER:?err}"
+  #      dockerfile: dockerfiles/Dockerfile.be
+  #    volumes:
+  #      - "${PROJECT_FOLDER:?err}:/app/"
+  #    ports:
+  #      - 8000:8000
+  #      - 20102:20102
+  #      - 5173:5173
+  #    env_file:
+  #      - ./.env.web.be
+  #    stdin_open: true
+  #    tty: true
+  #    depends_on:
+  #      db:
+  #        condition: service_healthy
+  #      minio:
+  #        condition: service_started
+  #      rabbitmq:
+  #        condition: service_healthy
 
   acli:
     build:
@@ -159,14 +159,14 @@ services:
   #     context: "${SCHEDULER_PROJECT_FOLDER:?err}"
   #     # dockerfile: Dockerfile.image.builder.worker.dev
   #     dockerfile: Dockerfile.buildah
-  
+
   #   # privileged: true
-  
+
   #   env_file:
   #     - ./.env.scheduler
   #   volumes:
   #     - "${SCHEDULER_PROJECT_FOLDER:?err}:/home/nonroot/app/"
-  
+
   #   depends_on:
   #     - web_be
   #     - rabbitmq
@@ -271,7 +271,6 @@ services:
     command: sleep infinity
     volumes:
       - "${ACCELERATOR_COMMON_ROUTINES:?err}/csv_regional_timeseries_validator:/app/"
-
 
   neo4j:
     image: neo4j:community

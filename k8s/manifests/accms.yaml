@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: accms
-        image: registry.iiasa.ac.at/accelerator/accms:a033b45
+        image: registry.iiasa.ac.at/accelerator/accms:4faf537
         envFrom:
           - secretRef:
               name: accms-secret
