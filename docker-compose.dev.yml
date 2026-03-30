@@ -157,8 +157,8 @@ services:
   # image-builder-scheduler:
   #   build:
   #     context: "${SCHEDULER_PROJECT_FOLDER:?err}"
-  #     # dockerfile: Dockerfile.image.builder.worker.dev
-  #     dockerfile: Dockerfile.buildah
+  #     # dockerfile: dockerfiles/Dockerfile.image.builder.worker.dev
+  #     dockerfile: dockerfiles/Dockerfile.buildah
 
   #   # privileged: true
 
@@ -175,7 +175,7 @@ services:
   k8s_events:
     build:
       context: "${SCHEDULER_PROJECT_FOLDER:?err}"
-      dockerfile: Dockerfile.k8s.events.dev
+      dockerfile: dockerfiles/Dockerfile.k8s.events.dev
     env_file:
       - ./.env.scheduler
     volumes:
