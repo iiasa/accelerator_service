@@ -120,6 +120,7 @@ In `.env.scheduler`, aside from the obvious settings:
     - Obtain an access token with superuser rights:  
       `python apply.py get_access_token <your email> <seconds to expiry>`
     - Copy and paste the token as the value of `ACCELERATOR_APP_TOKEN`.
+6. Set `USE_HOST_NAMESPACES` to `1` if you use WSL.
 
 ### [TiTiler](https://developmentseed.org/titiler/) (tile server)
 
