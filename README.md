@@ -96,11 +96,12 @@ In `.env.scheduler`, aside from the obvious settings:
 2. Set `JOBSTORE_*` values to point to an S3 bucket for transient file storage when launching WKube jobs.
 3. Convert `~/.kube/config` to JSON and then a base64 string:
    ```
-   kubectl config view --output json --raw >kubeconfig.json
+   kubectl config view --output json --raw > kubeconfig.json
    ```
    Edit the JSON to remove irrelevant contexts / credentials.
+   Change host name to `host.docker.internal` if you are using Docker Desktop with WSL
    ```
-   base64 -w0 kubeconfig.json >kubeconfig.b64
+   base64 -w0 kubeconfig.json > kubeconfig.b64
    ```
 4. Set  `WKUBE_SECRET_JSON_B64` to the content of `kubeconfig.b64`.
     - Or use command
@@ -121,6 +122,17 @@ In `.env.scheduler`, aside from the obvious settings:
       `python apply.py get_access_token <your email> <seconds to expiry>`
     - Copy and paste the token as the value of `ACCELERATOR_APP_TOKEN`.
 6. Set `USE_HOST_NAMESPACES` to `1` if you use WSL.
+7. Apply the Kubernetes Local Bridge Manifest.
+    - Get current dynamic IPs of the local containers.
+      `export MINIO_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' accelerator_service-minio-1)`
+      `export REGISTRY_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' accelerator_service-registry-1)`
+
+      `$MINIO_IP = (docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' accelerator_service-minio-1)`
+      `$REGISTRY_IP = (docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' accelerator_service-registry-1)`
+    - Inject the IPs into the template and apply directly to Kubernetes.
+      `envsubst < k8s/manifests/k8s-local-setup.yaml | kubectl apply -f -`
+
+      `(Get-Content -Path "k8s\manifests\k8s-local-setup.yaml" -Raw) -replace '\$\{MINIO_IP\}', $MINIO_IP -replace '\$\{REGISTRY_IP\}', $REGISTRY_IP | kubectl apply -f -`
 
 ### [TiTiler](https://developmentseed.org/titiler/) (tile server)
 
