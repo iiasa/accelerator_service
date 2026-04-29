@@ -103,15 +103,15 @@ In `.env.scheduler`, aside from the obvious settings:
    ```
    base64 -w0 kubeconfig.json > kubeconfig.b64
    ```
-4. Set  `WKUBE_SECRET_JSON_B64` to the content of `kubeconfig.b64`.
+   Set  `WKUBE_SECRET_JSON_B64` to the content of `kubeconfig.b64`.
     - Or use command
       `python3 -c "import sys, yaml, json; print(json.dumps(yaml.safe_load(sys.stdin), indent=2))" < ~/.kube/config > config.json`
       to convert the kubernetes config to JSON.
-5. Set `ACCELERATOR_APP_TOKEN` by obtaining a token as follows:
+4. Set `ACCELERATOR_APP_TOKEN` by obtaining a token as follows:
     - Startup the backend service:  
       `docker compose up web_be`
         - This also starts the integrated frontend.
-    - Create an account for yourself by signing in to the front end at `https:\\localhost:8080`.
+    - Create an account for yourself by signing in to the front end at `https://localhost:8080`.
         - Press the "Login with IIASA" button.
     - With `docker ps`, determine the container ID of the backend and shell into the container:  
       `docker ps | grep web_be`  
@@ -121,14 +121,18 @@ In `.env.scheduler`, aside from the obvious settings:
     - Obtain an access token with superuser rights:  
       `python apply.py get_access_token <your email> <seconds to expiry>`
     - Copy and paste the token as the value of `ACCELERATOR_APP_TOKEN`.
-6. Set `USE_HOST_NAMESPACES` to `1` if you use WSL.
-7. Apply the Kubernetes Local Bridge Manifest.
-    - Get current dynamic IPs of the local containers.
+5. Set `USE_HOST_NAMESPACES` to `1` if you use WSL.
+6. Apply the Kubernetes Local Bridge Manifest. If you are using Kubernetes in Docker Desktop:
+    - Get current dynamic IPs of the local containers (be cautious if container names are the same).
+
       `export MINIO_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' accelerator_service-minio-1)`
+
       `export REGISTRY_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' accelerator_service-registry-1)`
 
       `$MINIO_IP = (docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' accelerator_service-minio-1)`
+
       `$REGISTRY_IP = (docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' accelerator_service-registry-1)`
+
     - Inject the IPs into the template and apply directly to Kubernetes.
       `envsubst < k8s/manifests/k8s-local-setup.yaml | kubectl apply -f -`
 
