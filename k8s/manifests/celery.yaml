@@ -80,7 +80,7 @@ spec:
               name: celery-cluster-secret
         env:
           - name: WKUBE_AGENT_PULLER
-            value: "registry.iiasa.ac.at/accelerator/wkube-agent-puller:40f10f1"
+            value: "registry.iiasa.ac.at/accelerator/wkube-agent-puller:06947c1"
         imagePullPolicy: Always
         resources:
           limits:
