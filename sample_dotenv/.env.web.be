@@ -20,7 +20,7 @@ XET_CAS_S3_BUCKET_NAME='accelerator'
 
 PYTHONASYNCIODEBUG=1
 PYTHONDEVMODE=1
-CELERY_BROKER_URL='amqp://user:password@rabbitmq:5672/accelerator-native-jobs'
+CELERY_BROKER_URL='redis://:myredispassword@redis:6379/1'
 XET_REDIS_URL='redis://:myredispassword@redis:6379/0'
 
 SMTP_HOST=
