@@ -69,6 +69,8 @@ services:
       - ../../hf-mount:/app/hf-mount
       - ../../hf-csi-driver:/app/hf-csi-driver
       - ../accli:/app/accli
+      - ../accelerator-native-jobs:/app/accelerator-native-jobs
+      - ../wkube_job_agent:/app/wkube_job_agent
 
     ports:
       - 8000:8000
@@ -118,7 +120,7 @@ services:
     env_file:
       - ./.env.web.be
     stdin_open: true
-    command: celery -A janitor.celery_app worker --loglevel=info -Q janitor_queue -B
+    command: celery -A xet_janitor.celery_app worker --loglevel=info -Q janitor_queue -B
     tty: true
     depends_on:
       db:
