@@ -141,7 +141,7 @@ In `.env.scheduler`, aside from the obvious settings:
 1. Create a self-signed certificate (x509 v3):
    ```
    cd minio_certs
-   openssl req -x509 -newkey rsa:2048 -keyout private.key -out public.crt -days $DAYS -nodes -addext "subjectAltName = DNS:localhost,IP:127.0.0.1"
+   openssl req -x509 -newkey rsa:2048 -keyout private.key -out public.crt -days $DAYS -nodes -addext "subjectAltName = DNS:localhost,IP:127.0.0.1,DNS:localip"
    cd ..
    ```
    where `$DAYS` is the number of days before the certificate expires. Use a big number to effectively have no expiry.
