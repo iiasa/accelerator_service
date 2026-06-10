@@ -44,5 +44,4 @@ OPENAI_API_BASE='https://api.openai.com/v1'
 GCP_SERVICE_ACCOUNT_BASE64_JSON='<mocked>'
 TEAMS_WEBHOOK_URL='<mocked>'
 
-RECON_APP_BASE_URL='https://localrecon:8900'
-
+RECON_APP_BASE_URL='http://localhost:8900'
