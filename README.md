@@ -157,17 +157,17 @@ In `.env.scheduler`, aside from the obvious settings:
    cd meta-titiler
    mkdir certs
    cd certs
-   openssl req -x509 -newkey rsa:2048 -keyout private.key -out public.crt -days 1461 -nodes -subj "/CN=localhost"
+   openssl req -x509 -newkey rsa:4096 -sha256 -days 1461 -nodes -keyout private.key -out public.crt -subj "/CN=localhost" -addext "basicConstraints=critical,CA:FALSE" -addext "keyUsage=critical,digitalSignature,keyEncipherment" -addext "extendedKeyUsage=serverAuth" -addext "subjectAltName=DNS:localhost,IP:127.0.0.1,DNS:localip"
    cp public.crt ../dockerfiles/minio-cert.crt
    cd ..
    ```
 
 ### MinIO (block storage, S3)
 
-1. Create a self-signed certificate:
+1. Create a self-signed certificate (x509 v3):
    ```
    cd minio_certs
-   openssl req -x509 -newkey rsa:2048 -keyout private.key -out public.crt -days 1461 -nodes -subj "/CN=localhost"
+   openssl req -x509 -newkey rsa:4096 -sha256 -days 1461 -nodes -keyout private.key -out public.crt -subj "/CN=localhost" -addext "basicConstraints=critical,CA:FALSE" -addext "keyUsage=critical,digitalSignature,keyEncipherment" -addext "extendedKeyUsage=serverAuth" -addext "subjectAltName=DNS:localhost,IP:127.0.0.1,DNS:localip"
    cd ..
    ```
 2. Start the service:
