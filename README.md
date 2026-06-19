@@ -28,7 +28,7 @@ ACCMS_PROJECT_FOLDER='<path to>/accms'
 ```
 
 indicates that you have to locate the `accms` repository by [searching for repositories marked with the
-`accelerator` topic under the IIASA Github organization](https://github.com/search?q=org%3Aiiasa%20topic%3Aaccelerator&type=repositories),
+`accelerator` topic under the IIASA GitHub organization](https://github.com/search?q=org%3Aiiasa%20topic%3Aaccelerator&type=repositories),
 clone it somewhere convenient, and point `ACCMS_PROJECT_FOLDER` at the resulting working directory.
 
 > [!CAUTION]
@@ -71,16 +71,24 @@ openssl ecparam -genkey -name prime256v1 -noout -out private_key.pem
 openssl ec -in private_key.pem -pubout -out public_key.pem
 ```
 
-Set the following:
+Set `JWT_BASE64_PRIVATE_KEY` to the base64-encoded representation of your private key which you can obtain as follows:
 
 ```
-JWT_BASE64_PRIVATE_KEY="$(base64 -w0 private_key.pem)"
-JWT_BASE64_PUBLIC_KEY="$(base64 -w0 public_key.pem)"
+base64 -w0 private_key.pem
 ```
+
+Set `JWT_BASE64_PUBLIC_KEY` to the base64-encoded representation of your public key which you can obtain as follows:
+
+```
+base64 -w0 public_key.pem
+```
+
+Never wrap values in quotes in a Docker `.env` file unless your application explicitly expects those quotation marks to
+be part of the actual string.
 
 ### `.env.web.fe` (frontend)
 
-Must use https with TiTiler and hence set `https://...` in `VITE_TITILER_API_BASE_URL`. Therefore need to generate
+Must use https with TiTiler and hence set `https://...` in `VITE_TITILER_API_BASE_URL`. Therefore, need to generate
 self-signed certificate for TiTiler. Configuration details pending. Query an LLM on how to obtain a self-signed
 certificate that also works for `localhost`.
 
@@ -91,7 +99,7 @@ In `.env.scheduler`, aside from the obvious settings:
 1. In `.env.scheduler` configure `IMAGE_REGISTRY_*`. `IMAGE_REGISTRY_TAG_PREFIX` is needed when the registry is
    subdivided in namespaces. For example Harbor uses projects. If so, set the name of your space/project followed by a
    slash as value.
-    - When the registry service is running, you should be able to login via  `docker login <registry>:8443` and the
+    - When the registry service is running, you should be able to log in via  `docker login <registry>:8443` and the
       configured username and password.
 2. Set `JOBSTORE_*` values to point to an S3 bucket for transient file storage when launching WKube jobs.
 3. Convert `~/.kube/config` to JSON and then a base64 string:
@@ -111,7 +119,8 @@ In `.env.scheduler`, aside from the obvious settings:
     - Startup the backend service:  
       `docker compose up web_be`
         - This also starts the integrated frontend.
-    - Create an account for yourself by signing in to the front end at `https://localhost:8080`.
+    - Create an account for yourself by signing in to the front end at `https://localhost:8080/` or
+      `https://localhost:8000/`.
         - Press the "Login with IIASA" button.
     - With `docker ps`, determine the container ID of the backend and shell into the container:  
       `docker ps | grep web_be`  
@@ -142,26 +151,25 @@ In `.env.scheduler`, aside from the obvious settings:
 
 1. Clone the repo `https://github.com/iiasa/meta-titiler`
 2. Point `TITILER_FOLDER` in `.env` at the resulting working directory.
-3. Check that a certificate is present in `certs`. If absent, create a self-signed certificate expiring in `$DAYS` for
+3. Check that a certificate is present in `certs`. If absent, create a self-signed certificate for
    TiTiler by issuing:
    ```
    cd meta-titiler
    mkdir certs
    cd certs
-   openssl req -x509 -newkey rsa:2048 -keyout private.key -out public.crt -days $DAYS -nodes -subj "/CN=localip"
+   openssl req -x509 -newkey rsa:4096 -sha256 -days 1461 -nodes -keyout private.key -out public.crt -subj "/CN=localhost" -addext "basicConstraints=critical,CA:FALSE" -addext "keyUsage=critical,digitalSignature,keyEncipherment" -addext "extendedKeyUsage=serverAuth" -addext "subjectAltName=DNS:localhost,IP:127.0.0.1,DNS:localip"
    cp public.crt ../dockerfiles/minio-cert.crt
    cd ..
    ```
 
 ### MinIO (block storage, S3)
 
-1. Create a self-signed certificate:
+1. Create a self-signed certificate (x509 v3):
    ```
    cd minio_certs
-   openssl req -x509 -newkey rsa:2048 -keyout private.key -out public.crt -days $DAYS -nodes -subj "/CN=localhost"
+   openssl req -x509 -newkey rsa:4096 -sha256 -days 1461 -nodes -keyout private.key -out public.crt -subj "/CN=localhost" -addext "basicConstraints=critical,CA:FALSE" -addext "keyUsage=critical,digitalSignature,keyEncipherment" -addext "extendedKeyUsage=serverAuth" -addext "subjectAltName=DNS:localhost,IP:127.0.0.1,DNS:localip"
    cd ..
    ```
-   where `$DAYS` is the number of days before the certificate expires. Use a big number to effectively have no expiry.
 2. Start the service:
    ```
    docker compose -f docker-compose.dev.yml up minio [--build]
@@ -228,13 +236,8 @@ where `xxx.xxx.xxx.xxx` is your IP address on the IIASA network.
 
 ## Browse
 
-Browse to the backend at `https://localhost:8000`. In case of a security warning on account of the self-signed
+Browse to the backend at `https://localhost:8000/api/v1/`. In case of a security warning on account of the self-signed
 certificate, add an exception in your browser.
 
-Browse to the frontend at `https://localhost:8080`. In case of a security warning on account of the self-signed
-certificate, add an exception in your browser. Then log in via the `Login with IIASA` button.
-
-## Additional notes
-
-- Inside `control_services_backend` ignore the `.env.sample`, the configs are passed down as the containers are
-  orchestrated.
+Browse to the frontend at `https://localhost:8080/` or `https://localhost:8000/`. In case of a security warning on
+account of the self-signed certificate, add an exception in your browser. Then log in via the `Login with IIASA` button.
