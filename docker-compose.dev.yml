@@ -62,15 +62,13 @@ services:
       dockerfile: dockerfiles/Dockerfile.devc
     volumes:
       - "${PROJECT_FOLDER:?err}:/app/"
-      - /home/rupesh/.antigravity:/home/root/.antigravity
-      - /home/rupesh/.gemini:/home/root/.gemini
       - ../../xet-core:/app/xet-core
       - ../xet_shard_parser:/app/xet_shard_parser
       - ../../hf-mount:/app/hf-mount
       - ../../hf-csi-driver:/app/hf-csi-driver
-      - ../accli:/app/accli
-      - ../accelerator-native-jobs:/app/accelerator-native-jobs
-      - ../wkube_job_agent:/app/wkube_job_agent
+      - ${ACLI_PROJECT_FOLDER:?err}:/app/accli
+      - ${WKUBE_JOB_AGENT_PROJECT_FOLDER:?err}:/app/wkube_job_agent
+      - ${WKUBE_JOB_GATEWAY_INTERACTIVE_PROJECT_FOLDER:?err}:/app/wkube_job_gateway_interactive
 
     ports:
       - 8000:8000
@@ -154,25 +152,16 @@ services:
       redis:
         condition: service_started
 
-  acli:
-    build:
-      context: "${ACLI_PROJECT_FOLDER:?err}"
-      dockerfile: Dockerfile.dev
-    command: sleep infinity
-    privileged: true
-    volumes:
-      - "${ACLI_PROJECT_FOLDER:?err}:/app/"
-
   scheduler:
     build:
-      context: "${SCHEDULER_PROJECT_FOLDER:?err}"
-      dockerfile: dockerfiles/Dockerfile.dev
+      context: "${PROJECT_FOLDER:?err}"
+      dockerfile: dockerfiles/Dockerfile.scheduler
     # command: sleep infinity
     privileged: true
     env_file:
-      - ./.env.scheduler
-    volumes:
-      - "${SCHEDULER_PROJECT_FOLDER:?err}:/home/ubuntu/app/"
+      - ./.env.web.be
+    # volumes:
+    #   - "${PROJECT_FOLDER:?err}:/home/ubuntu/app/"
     depends_on:
       web_be:
         condition: service_started
@@ -180,24 +169,6 @@ services:
         condition: service_started
       registry:
         condition: service_started
-
-  # image-builder-scheduler:
-  #   build:
-  #     context: "${SCHEDULER_PROJECT_FOLDER:?err}"
-  #     # dockerfile: dockerfiles/Dockerfile.image.builder.worker.dev
-  #     dockerfile: dockerfiles/Dockerfile.buildah
-
-  #   # privileged: true
-
-  #   env_file:
-  #     - ./.env.scheduler
-  #   volumes:
-  #     - "${SCHEDULER_PROJECT_FOLDER:?err}:/home/nonroot/app/"
-
-  #   depends_on:
-  #     - web_be
-  #     - rabbitmq
-  #     - registry
 
   k8s_events:
     build:
@@ -211,54 +182,35 @@ services:
       web_be:
         condition: service_started
 
-  wkubecmd:
-    build:
-      context: "${WKUBE_JOB_AGENT_PROJECT_FOLDER:?err}"
-      dockerfile: Dockerfile.dev
-    environment:
-      - ACC_JOB_GATEWAY_SERVER=http://web_be:8000/
-      - ACC_JOB_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiSk9CIiwiY2FuX3JlZ2lzdGVyX3ZhbGlkYXRpb25fdHlwZXMiOltdLCJ1c2VyX2lkIjoxLCJqb2JfaWQiOjIzMSwiZXhwIjoxNzYzMDg2MTM5fQ.jRKBRv01t_LdqCh_qO3aPxtwdZJMLHVzSemHX8ezywc
-    command: sleep infinity
-    volumes:
-      - "${WKUBE_JOB_AGENT_PROJECT_FOLDER:?err}:/app/"
+  # accms:
+  #   build:
+  #     context: "${ACCMS_PROJECT_FOLDER:?err}"
+  #     dockerfile: Dockerfile.dev
+  #   ports:
+  #     - 8001:8000
+  #   env_file:
+  #     - ./.env.accms
+  #   stdin_open: true
+  #   tty: true
+  #   volumes:
+  #     - "${ACCMS_PROJECT_FOLDER:?err}:/app/"
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
 
-  wkube-it-gateway:
-    build:
-      context: "${WKUBE_JOB_GATEWAY_INTERACTIVE_PROJECT_FOLDER:?err}"
-      dockerfile: Dockerfile.dev
-    command: sleep infinity
-    volumes:
-      - "${WKUBE_JOB_GATEWAY_INTERACTIVE_PROJECT_FOLDER:?err}:/app/"
-
-  accms:
-    build:
-      context: "${ACCMS_PROJECT_FOLDER:?err}"
-      dockerfile: Dockerfile.dev
-    ports:
-      - 8001:8000
-    env_file:
-      - ./.env.accms
-    stdin_open: true
-    tty: true
-    volumes:
-      - "${ACCMS_PROJECT_FOLDER:?err}:/app/"
-    depends_on:
-      db:
-        condition: service_healthy
-
-  threads:
-    build:
-      context: "${THREADS_PROJECT_FOLDER:?err}"
-      dockerfile: Dockerfile.dev
-    ports:
-      - 8003:8000
-    env_file:
-      - ./.env.threads
-    volumes:
-      - "${THREADS_PROJECT_FOLDER:?err}:/app/"
-    depends_on:
-      db:
-        condition: service_healthy
+  # threads:
+  #   build:
+  #     context: "${THREADS_PROJECT_FOLDER:?err}"
+  #     dockerfile: Dockerfile.dev
+  #   ports:
+  #     - 8003:8000
+  #   env_file:
+  #     - ./.env.threads
+  #   volumes:
+  #     - "${THREADS_PROJECT_FOLDER:?err}:/app/"
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
 
   registry:
     image: registry:2
@@ -292,11 +244,3 @@ services:
       resources:
         limits:
           memory: 2G
-
-  accelerator_routine:
-    build:
-      context: "${ACCELERATOR_COMMON_ROUTINES:?err}/csv_regional_timeseries_validator"
-      dockerfile: Dockerfile.dev
-    command: sleep infinity
-    volumes:
-      - "${ACCELERATOR_COMMON_ROUTINES:?err}/csv_regional_timeseries_validator:/app/"

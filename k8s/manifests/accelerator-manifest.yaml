@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: accelerator-be
 spec:
-  replicas: 1
+  replicas: 4
   selector:
     matchLabels:
       app: accelerator-be
@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: acc-be
-        image: registry.iiasa.ac.at/accelerator/iiasa-acc-be:33ff1215
+        image: registry.iiasa.ac.at/accelerator/iiasa-acc-be:a1837404
         envFrom:
           - secretRef:
               name: accelerator-be-secret
