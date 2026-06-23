@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: xet-reconstruction
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: xet-reconstruction
+  template:
+    metadata:
+      labels:
+        app: xet-reconstruction
+      annotations:
+        kubernetes.io/restart-at: "2025-10-22T10:50:43+0410"
+    spec:
+      affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: kubernetes.io/hostname    # 👈 change this key to match your node label
+                  operator: In
+                  values:
+                  - hpg1025
+      containers:
+      - name: xet-reconstruction
+        image: registry.iiasa.ac.at/accelerator/recon:c01c8465
+        envFrom:
+          - secretRef:
+              name: accelerator-be-secret
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8900
+        resources:
+          limits:
+            memory: "4095Mi"
+            cpu: "4000m"
+            ephemeral-storage: "4Gi"
+          requests:
+            memory: "4095Mi"
+            cpu: "4000m"
+            ephemeral-storage: "4Gi"
+      
+      
+      imagePullSecrets:
+        - name: iiasaregcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: xet-reconstruction-service
+spec:
+  type: NodePort
+  selector:
+    app: xet-reconstruction
+  ports:
+    - protocol: TCP
+      port: 8779
+      targetPort: 8900
+      nodePort: 30178
