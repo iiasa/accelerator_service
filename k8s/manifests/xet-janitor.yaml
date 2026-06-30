@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: xet-janitor
-        image: registry.iiasa.ac.at/accelerator/iiasa-acc-be:c01c8465
+        image: registry.iiasa.ac.at/accelerator/iiasa-acc-be:4899594b
         command: ["celery"]
         args:
           - "-A"
