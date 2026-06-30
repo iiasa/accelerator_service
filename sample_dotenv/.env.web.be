@@ -13,6 +13,7 @@ INITIAL_S3_API_KEY=<MinIO Access Key>
 INITIAL_S3_SECRET_KEY=<MinIO Secret Key>
 INITIAL_S3_BUCKET_NAME=accelerator
 
+XET_CAS_S3_ENDPOINT_INTERNAL=https://minio:9000
 XET_CAS_S3_ENDPOINT=https://minio:9000
 XET_CAS_S3_API_KEY=<MinIO Access Key>
 XET_CAS_S3_SECRET_KEY=<MinIO Secret Key>
@@ -43,6 +44,26 @@ OPENAI_API_BASE=https://api.openai.com/v1
 
 GCP_SERVICE_ACCOUNT_BASE64_JSON=<mocked>
 TEAMS_WEBHOOK_URL=<mocked>
+
+ACCELERATOR_CLI_BASE_URL=https://localip:8000
+WKUBE_AGENT_PULLER=wrufesh/wkube-agent-puller
+IMAGE_REGISTRY_URL=registry:8443
+IMAGE_REGISTRY_USER=myregistry
+IMAGE_REGISTRY_PASSWORD=myregistrypassword
+OCI_BUILDER_IMAGE=wrufesh/wkube-image-builder
+WKUBE_K8_NAMESPACE=bnr-acl
+WKUBE_SECRET_JSON_B64=<mocked>
+
+WKUBE_WORKFLOW_STORAGE_CLASS=local-path
+
+#Dev specific
+DOCKER_TLS_VERIFY=
+DOCKER_CERT_PATH=
+
+
+ACCELERATOR_APP_TOKEN=<mocked>
+
+ENABLE_HF_ACC_CSI=1
 
 RECON_APP_BASE_URL=http://localhost:8900
 
