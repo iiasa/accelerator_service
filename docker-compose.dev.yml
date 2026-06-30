@@ -44,6 +44,19 @@ services:
     env_file:
       - ./.env.minio
 
+  redis:
+    image: bitnami/redis:latest
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=myredispassword
+      - REDIS_MAXMEMORY=1536mb
+      - REDIS_MAXMEMORY_POLICY=noeviction
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+
   #web_be:
   #  build:
   #    context: "${PROJECT_FOLDER:?err}"
@@ -139,26 +152,25 @@ services:
       redis:
         condition: service_started
 
-  titiler:
-    build:
-      context: "${TITILER_FOLDER:?err}"
-      dockerfile: Dockerfile.dev
-    platform: linux/x86_64
+  registry:
+    image: registry:2
     ports:
-      - 8002:8000
-    volumes:
-      - "${TITILER_FOLDER:?err}:/app/"
+      - "5000:5000"
+      - "8443:8443"
     environment:
-      - TITILER_API_CORS_ORIGINS=https://localhost:8080,http://localhost:8080,https://accelerator.iiasa.ac.at,https://141-iiasa-forestnavigator.vercel.app
-
-  acli:
-    build:
-      context: "${ACLI_PROJECT_FOLDER:?err}"
-      dockerfile: Dockerfile.dev
-    command: sleep infinity
-    privileged: true
+      REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /var/lib/registry
+      REGISTRY_AUTH: htpasswd
+      REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+      REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
+      REGISTRY_HTTP_ADDR: registry:8443
+      REGISTRY_HTTP_TLS_CERTIFICATE: /certs/server.crt
+      REGISTRY_HTTP_TLS_KEY: /certs/server.key
+    # Way to generate htpasswd file
+    # docker run --rm --entrypoint htpasswd httpd:2 -Bbn myregistry myregistrypassword > services_docker_compose_for_dev/registry_auth/htpasswd
     volumes:
-      - "${ACLI_PROJECT_FOLDER:?err}:/app/"
+      - registry_data:/var/lib/registry
+      - ./registry_auth:/auth
+      - ./registry_certs:/certs
 
   scheduler:
     build:
@@ -190,6 +202,27 @@ services:
       web_be:
         condition: service_started
 
+  titiler:
+    build:
+      context: "${TITILER_FOLDER:?err}"
+      dockerfile: Dockerfile.dev
+    platform: linux/x86_64
+    ports:
+      - 8002:8000
+    volumes:
+      - "${TITILER_FOLDER:?err}:/app/"
+    environment:
+      - TITILER_API_CORS_ORIGINS=https://localhost:8080,http://localhost:8080,https://accelerator.iiasa.ac.at,https://141-iiasa-forestnavigator.vercel.app
+
+  acli:
+    build:
+      context: "${ACLI_PROJECT_FOLDER:?err}"
+      dockerfile: Dockerfile.dev
+    command: sleep infinity
+    privileged: true
+    volumes:
+      - "${ACLI_PROJECT_FOLDER:?err}:/app/"
+
   # accms:
   #   build:
   #     context: "${ACCMS_PROJECT_FOLDER:?err}"
@@ -219,36 +252,3 @@ services:
   #   depends_on:
   #     db:
   #       condition: service_healthy
-
-  registry:
-    image: registry:2
-    ports:
-      - "5000:5000"
-      - "8443:8443"
-    environment:
-      REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /var/lib/registry
-      REGISTRY_AUTH: htpasswd
-      REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
-      REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
-      REGISTRY_HTTP_ADDR: registry:8443
-      REGISTRY_HTTP_TLS_CERTIFICATE: /certs/server.crt
-      REGISTRY_HTTP_TLS_KEY: /certs/server.key
-    # Way to generate htpasswd file
-    # docker run --rm --entrypoint htpasswd httpd:2 -Bbn myregistry myregistrypassword > services_docker_compose_for_dev/registry_auth/htpasswd
-    volumes:
-      - registry_data:/var/lib/registry
-      - ./registry_auth:/auth
-      - ./registry_certs:/certs
-
-  redis:
-    image: bitnami/redis:latest
-    ports:
-      - "6379:6379"
-    environment:
-      - REDIS_PASSWORD=myredispassword
-      - REDIS_MAXMEMORY=1536mb
-      - REDIS_MAXMEMORY_POLICY=noeviction
-    deploy:
-      resources:
-        limits:
-          memory: 2G
