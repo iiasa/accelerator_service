@@ -63,7 +63,7 @@ services:
   #      condition: service_healthy
   #    minio:
   #      condition: service_started
-  #    rabbitmq:
+  #    redis:
   #      condition: service_healthy
 
   web_be:
