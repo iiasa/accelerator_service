@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: accelerator-be
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: accelerator-be
@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
       - name: acc-be
-        image: registry.iiasa.ac.at/accelerator/iiasa-acc-be:33ff1215
+        # image: registry.iiasa.ac.at/accelerator/iiasa-acc-be:a1837404
+        image: registry.iiasa.ac.at/accelerator/iiasa-acc-be:351c6bad
         envFrom:
           - secretRef:
               name: accelerator-be-secret
@@ -67,23 +68,21 @@ spec:
     spec:
       containers:
       - name: redis
-        image: registry.iiasa.ac.at/accelerator/redis:6.2
+        image: registry.iiasa.ac.at/accelerator/redis:d842c43
         resources:
           limits:
-            memory: "256Mi"
-            cpu: "250m"
+            memory: "1024Mi"
+            cpu: "1000m"
           requests:
-            memory: "256Mi"
-            cpu: "250m"
+            memory: "1024Mi"
+            cpu: "1000m"
         envFrom:
           - secretRef:
               name: redis-secret
         ports:
         - containerPort: 6379
-        command:
-          - sh
-          - -c
-          - redis-server --requirepass "$REDIS_PASSWORD"
+      imagePullSecrets:
+        - name: iiasaregcred
       #   volumeMounts:
       #   - name: redis-data
       #     mountPath: /data
@@ -91,3 +90,16 @@ spec:
       # - name: redis-data
       #   persistentVolumeClaim:
       #     claimName: redis-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+spec:
+  type: ClusterIP
+  selector:
+    app: redis
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379

@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: accelerator-scheduler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: accelerator-scheduler
+  template:
+    metadata:
+      labels:
+        app: accelerator-scheduler
+      annotations:
+        kubernetes.io/restart-at: "2025-04-18T16:48:22+0661"
+    spec:
+      containers:
+      - name: accelerator-scheduler
+        image: registry.iiasa.ac.at/accelerator/scheduler:95460da6
+        command: ["/home/ubuntu/.local/bin/celery"]
+        args:
+          - "-A"
+          - "scheduler.celery_app"
+          - "worker"
+          - "-B"
+          - "--loglevel=INFO"
+          - "--concurrency=2"
+        securityContext:
+            privileged: true
+        envFrom:
+          - secretRef:
+              name: accelerator-be-secret
+        env:
+          - name: WKUBE_AGENT_PULLER
+            value: "registry.iiasa.ac.at/accelerator/wkube-agent-puller:0bd34c7"
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "2000Mi"
+            cpu: "1000m"
+          requests:
+            memory: "2000Mi"
+            cpu: "1000m"
+
+      imagePullSecrets:
+        - name: iiasaregcred

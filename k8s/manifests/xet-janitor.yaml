@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: xet-janitor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: xet-janitor
+  template:
+    metadata:
+      labels:
+        app: xet-janitor
+      annotations:
+        kubernetes.io/restart-at: "2025-04-18T16:48:22+0661"
+    spec:
+      containers:
+      - name: xet-janitor
+        image: registry.iiasa.ac.at/accelerator/iiasa-acc-be:4899594b
+        command: ["celery"]
+        args:
+          - "-A"
+          - "xet_janitor.celery_app"
+          - "worker"
+          - "--loglevel=info"
+          - "-Q"
+          - "janitor_queue"
+          - "-B"
+          - "--concurrency=2"
+        envFrom:
+          - secretRef:
+              name: accelerator-be-secret
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "4000Mi"
+            cpu: "2000m"
+          requests:
+            memory: "4000Mi"
+            cpu: "2000m"
+
+      imagePullSecrets:
+        - name: iiasaregcred

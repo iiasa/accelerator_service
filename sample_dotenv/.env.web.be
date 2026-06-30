@@ -20,7 +20,7 @@ XET_CAS_S3_BUCKET_NAME=accelerator
 
 PYTHONASYNCIODEBUG=1
 PYTHONDEVMODE=1
-CELERY_BROKER_URL=amqp://user:password@rabbitmq:5672/accelerator-native-jobs
+CELERY_BROKER_URL=redis://:myredispassword@redis:6379/1
 XET_REDIS_URL=redis://:myredispassword@redis:6379/0
 
 SMTP_HOST=
@@ -44,5 +44,5 @@ OPENAI_API_BASE=https://api.openai.com/v1
 GCP_SERVICE_ACCOUNT_BASE64_JSON=<mocked>
 TEAMS_WEBHOOK_URL=<mocked>
 
-RECON_APP_BASE_URL=http://localrecon:8900
+RECON_APP_BASE_URL=http://localhost:8900
 
