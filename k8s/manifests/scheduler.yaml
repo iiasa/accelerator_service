@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: accelerator-scheduler
-        image: registry.iiasa.ac.at/accelerator/scheduler:95460da6
+        image: registry.iiasa.ac.at/accelerator/scheduler:3392af67
         command: ["/home/ubuntu/.local/bin/celery"]
         args:
           - "-A"
@@ -32,7 +32,7 @@ spec:
               name: accelerator-be-secret
         env:
           - name: WKUBE_AGENT_PULLER
-            value: "registry.iiasa.ac.at/accelerator/wkube-agent-puller:0bd34c7"
+            value: "registry.iiasa.ac.at/accelerator/wkube-agent-puller:5eaad14"
         imagePullPolicy: Always
         resources:
           limits:
