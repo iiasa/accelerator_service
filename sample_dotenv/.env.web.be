@@ -8,13 +8,13 @@ JWT_BASE64_PUBLIC_KEY=<mocked>
 REFRESH_TOKEN_SECRET_KEY=<mocked>
 ALLOWED_ORIGINS=["http://localhost:8080","https://localhost:8080","https://localhost:8081","http://localhost:8008","https://localhost:8008"]
 
-INITIAL_S3_ENDPOINT=https://localhost:9000
+INITIAL_S3_ENDPOINT=https://minio:9000
 INITIAL_S3_API_KEY=<MinIO_Access_Key>
 INITIAL_S3_SECRET_KEY=<MinIO_Secret_Key>
 INITIAL_S3_BUCKET_NAME=accelerator
 
-XET_CAS_S3_ENDPOINT_INTERNAL=https://localhost:9000
-XET_CAS_S3_ENDPOINT=https://localhost:9000
+XET_CAS_S3_ENDPOINT_INTERNAL=https://minio:9000
+XET_CAS_S3_ENDPOINT=https://minio:9000
 XET_CAS_S3_API_KEY=<MinIO_Access_Key>
 XET_CAS_S3_SECRET_KEY=<MinIO_Secret_Key>
 XET_CAS_S3_BUCKET_NAME=accelerator
@@ -34,7 +34,7 @@ FRONTEND_URL=https://localhost:8000
 
 JOB_SECRET_ENCRYPTION_KEY=<base-64-encoded_256-bit_key>
 
-JOBSTORE_S3_ENDPOINT=https://localhost:9000
+JOBSTORE_S3_ENDPOINT=https://minio:9000
 JOBSTORE_S3_API_KEY=<MinIO_Access_Key>
 JOBSTORE_S3_SECRET_KEY=<MinIO_Secret_Key>
 JOBSTORE_S3_BUCKET_NAME=jobstore

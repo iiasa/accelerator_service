@@ -164,7 +164,7 @@ In `.env.scheduler`, aside from the obvious settings:
    openssl genrsa -out private.key 2048 && \
    openssl req -new -key private.key -out server.csr -subj "/CN=localhost" && \
    openssl x509 -req -days 1461 -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out public.crt \
-   -extfile <(printf "[v3]\nbasicConstraints=critical,CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\nsubjectAltName=DNS:localip,DNS:web_be,DNS:localhost,IP:127.0.0.1") \
+   -extfile <(printf "[v3]\nbasicConstraints=critical,CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\nsubjectAltName=DNS:localip,DNS:web_be,DNS:localhost,DNS:minio,IP:127.0.0.1") \
    -extensions v3
    cd ..
    ```
@@ -181,7 +181,7 @@ In `.env.scheduler`, aside from the obvious settings:
    openssl genrsa -out private.key 2048 && \
    openssl req -new -key private.key -out server.csr -subj "/CN=localhost" && \
    openssl x509 -req -days 1461 -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out public.crt \
-   -extfile <(printf "[v3]\nbasicConstraints=critical,CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\nsubjectAltName=DNS:localip,DNS:web_be,DNS:localhost,IP:127.0.0.1") \
+   -extfile <(printf "[v3]\nbasicConstraints=critical,CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\nsubjectAltName=DNS:localip,DNS:web_be,DNS:localhost,DNS:minio,IP:127.0.0.1") \
    -extensions v3 && \
    cd ..
    ```
@@ -206,6 +206,7 @@ In `.env.scheduler`, aside from the obvious settings:
    mc admin accesskey create local/ --insecure
    ```
 7. In `.env.web.be` and `.env.scheduler`, set these as values of the `*_S3_API_KEY=` and `*_S3_SECRET_KEY=` entries.
+8. Add the MinIO endpoint to your system's known hosts.
 
 ### Registry
 
