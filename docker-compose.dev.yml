@@ -69,6 +69,8 @@ services:
   #    - 5173:5173
   #  env_file:
   #    - ./.env.web.be
+  #  extra_hosts:
+  #    - "localhost:host-gateway"
   #  stdin_open: true
   #  tty: true
   #  depends_on:
@@ -102,6 +104,8 @@ services:
     env_file:
       - ./.env.web.be
       - ./.env.web.fe
+    extra_hosts:
+      - "localhost:host-gateway"
     stdin_open: true
     tty: true
     privileged: true
@@ -121,7 +125,8 @@ services:
       - 8900:8900
     env_file:
       - ./.env.web.be
-
+    extra_hosts:
+      - "localhost:host-gateway"
     stdin_open: true
     tty: true
     depends_on:
@@ -136,11 +141,12 @@ services:
     build:
       context: "${PROJECT_FOLDER:?err}"
       dockerfile: dockerfiles/Dockerfile.devc
-    #      dockerfile: dockerfiles/Dockerfile.be
     volumes:
       - "${PROJECT_FOLDER:?err}:/app/"
     env_file:
       - ./.env.web.be
+    extra_hosts:
+      - "localhost:host-gateway"
     stdin_open: true
     command: celery -A xet_janitor.celery_app worker --loglevel=info -Q janitor_queue -B
     tty: true

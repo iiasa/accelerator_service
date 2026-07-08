@@ -206,7 +206,6 @@ In `.env.scheduler`, aside from the obvious settings:
    mc admin accesskey create local/ --insecure
    ```
 7. In `.env.web.be` and `.env.scheduler`, set these as values of the `*_S3_API_KEY=` and `*_S3_SECRET_KEY=` entries.
-8. Add the MinIO endpoint to your system's known hosts.
 
 ### Registry
 
