@@ -121,7 +121,6 @@ services:
       - 8900:8900
     env_file:
       - ./.env.web.be
-
     stdin_open: true
     tty: true
     depends_on:
@@ -136,7 +135,6 @@ services:
     build:
       context: "${PROJECT_FOLDER:?err}"
       dockerfile: dockerfiles/Dockerfile.devc
-    #      dockerfile: dockerfiles/Dockerfile.be
     volumes:
       - "${PROJECT_FOLDER:?err}:/app/"
     env_file:

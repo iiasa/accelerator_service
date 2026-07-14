@@ -157,8 +157,15 @@ In `.env.scheduler`, aside from the obvious settings:
    cd meta-titiler
    mkdir certs
    cd certs
-   openssl req -x509 -newkey rsa:4096 -sha256 -days 1461 -nodes -keyout private.key -out public.crt -subj "/CN=localhost" -addext "basicConstraints=critical,CA:FALSE" -addext "keyUsage=critical,digitalSignature,keyEncipherment" -addext "extendedKeyUsage=serverAuth" -addext "subjectAltName=DNS:localhost,IP:127.0.0.1,DNS:localip"
-   cp public.crt ../dockerfiles/minio-cert.crt
+   openssl genrsa -out ca.key 2048 && \
+   openssl req -new -x509 -days 1461 -key ca.key -out ca.crt -subj "/CN=localhost" \
+   -addext "basicConstraints=critical,CA:TRUE" \
+   -addext "keyUsage=critical,keyCertSign,cRLSign" && \
+   openssl genrsa -out private.key 2048 && \
+   openssl req -new -key private.key -out server.csr -subj "/CN=localhost" && \
+   openssl x509 -req -days 1461 -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out public.crt \
+   -extfile <(printf "[v3]\nbasicConstraints=critical,CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\nsubjectAltName=DNS:localip,DNS:web_be,DNS:localhost,DNS:minio,IP:127.0.0.1") \
+   -extensions v3
    cd ..
    ```
 
@@ -168,13 +175,13 @@ In `.env.scheduler`, aside from the obvious settings:
    ```bash
    cd minio_certs && \
    openssl genrsa -out ca.key 2048 && \
-   openssl req -new -x509 -days $DAYS -key ca.key -out ca.crt -subj "/CN=localip-ca" \
+   openssl req -new -x509 -days 1461 -key ca.key -out ca.crt -subj "/CN=localhost" \
    -addext "basicConstraints=critical,CA:TRUE" \
    -addext "keyUsage=critical,keyCertSign,cRLSign" && \
    openssl genrsa -out private.key 2048 && \
-   openssl req -new -key private.key -out server.csr -subj "/CN=localip" && \
-   openssl x509 -req -days $DAYS -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out public.crt \
-   -extfile <(printf "[v3]\nbasicConstraints=critical,CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\nsubjectAltName=DNS:localip,DNS:web_be,DNS:localhost,IP:127.0.0.1") \
+   openssl req -new -key private.key -out server.csr -subj "/CN=localhost" && \
+   openssl x509 -req -days 1461 -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out public.crt \
+   -extfile <(printf "[v3]\nbasicConstraints=critical,CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\nsubjectAltName=DNS:localip,DNS:web_be,DNS:localhost,DNS:minio,IP:127.0.0.1") \
    -extensions v3 && \
    cd ..
    ```
