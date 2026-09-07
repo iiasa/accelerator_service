@@ -35,139 +35,21 @@ clone it somewhere convenient, and point `ACCMS_PROJECT_FOLDER` at the resulting
 > Relative paths (relative to the `accelerator_service` working directory root) should start with `./` to avoid being
 > mistaken for a volume name.
 
-### `.env.web.be` (backend)
+### Database
 
-Aside from the self-explanatory settings...
-
-Insert the IPv4 address of your dev machine in the value of `INITIAL_S3_ENDPOINT` before the port number.
-
-Set `JOB_SECRET_ENCRYPTION_KEY` to the base64-encoded representation of random 256-bit key values which you can obtain
-as follows:
-
-```
-head </dev/random -c32 | base64
-```
-
-This key encrypts secrets required by jobs.
-
-Set `BUCKET_DETAILS_ENCRYPTION_KEY` to the base64-encoded representation of random 256-bit key values which you can
-obtain as follows:
-
-```
-head </dev/random -c32 | base64
-```
-
-This key encrypts bucket credentials.
-
-Need a public/private keypair. Tokens are signed with the private key by the backend, and can be verified with the
-public key. This is useful for example for the gateway for interactive containers: the gateway simply verifies the token
-via the public key as obtained via the `GET` method at
-`https://accelerator-api.iiasa.ac.at/docs#/.well-known/jwks.json`.
-
-Use OpenSSL to generate the keypair and extract the public key:
-
-```
-openssl ecparam -genkey -name prime256v1 -noout -out private_key.pem
-openssl ec -in private_key.pem -pubout -out public_key.pem
-```
-
-Set `JWT_BASE64_PRIVATE_KEY` to the base64-encoded representation of your private key which you can obtain as follows:
-
-```
-base64 -w0 private_key.pem
-```
-
-Set `JWT_BASE64_PUBLIC_KEY` to the base64-encoded representation of your public key which you can obtain as follows:
-
-```
-base64 -w0 public_key.pem
-```
-
-Never wrap values in quotes in a Docker `.env` file unless your application explicitly expects those quotation marks to
-be part of the actual string.
-
-### `.env.web.fe` (frontend)
-
-Must use https with TiTiler and hence set `https://...` in `VITE_TITILER_API_BASE_URL`. Therefore, need to generate
-self-signed certificate for TiTiler. Configuration details pending. Query an LLM on how to obtain a self-signed
-certificate that also works for `localhost`.
-
-### `.env.scheduler` (job dispatcher)
-
-In `.env.scheduler`, aside from the obvious settings:
-
-1. In `.env.scheduler` configure `IMAGE_REGISTRY_*`. `IMAGE_REGISTRY_TAG_PREFIX` is needed when the registry is
-   subdivided in namespaces. For example Harbor uses projects. If so, set the name of your space/project followed by a
-   slash as value.
-    - When the registry service is running, you should be able to log in via  `docker login <registry>:8443` and the
-      configured username and password.
-2. Set `JOBSTORE_*` values to point to an S3 bucket for transient file storage when launching WKube jobs.
-3. Convert `~/.kube/config` to JSON and then a base64 string:
-   ```
-   kubectl config view --output json --raw > kubeconfig.json
-   ```
-   Edit the JSON to remove irrelevant contexts / credentials.
-   Change host name to `host.docker.internal` if you are using Docker Desktop with WSL
-   ```
-   base64 -w0 kubeconfig.json > kubeconfig.b64
-   ```
-   Set  `WKUBE_SECRET_JSON_B64` to the content of `kubeconfig.b64`.
-    - Or use command
-      `python3 -c "import sys, yaml, json; print(json.dumps(yaml.safe_load(sys.stdin), indent=2))" < ~/.kube/config > config.json`
-      to convert the kubernetes config to JSON.
-4. Set `ACCELERATOR_APP_TOKEN` by obtaining a token as follows:
-    - Startup the backend service:  
-      `docker compose up web_be`
-        - This also starts the integrated frontend.
-    - Create an account for yourself by signing in to the front end at `https://localhost:8080/` or
-      `https://localhost:8000/`.
-        - Press the "Login with IIASA" button.
-    - With `docker ps`, determine the container ID of the backend and shell into the container:  
-      `docker ps | grep web_be`  
-      `docker exec -it <backend container ID> /bin/bash`
-    - Grant your account superuser rights:  
-      `python apply.py add_role <your email> APP__SUPERUSER`
-    - Obtain an access token with superuser rights:  
-      `python apply.py get_access_token <your email> <seconds to expiry>`
-    - Copy and paste the token as the value of `ACCELERATOR_APP_TOKEN`.
-5. Set `USE_HOST_NAMESPACES` to `1` if you use WSL.
-6. Apply the Kubernetes Local Bridge Manifest. If you are using Kubernetes in Docker Desktop:
-    - Get current dynamic IPs of the local containers (be cautious if container names are the same).
-
-      `export MINIO_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' accelerator_service-minio-1)`
-
-      `export REGISTRY_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' accelerator_service-registry-1)`
-
-      `$MINIO_IP = (docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' accelerator_service-minio-1)`
-
-      `$REGISTRY_IP = (docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' accelerator_service-registry-1)`
-
-    - Inject the IPs into the template and apply directly to Kubernetes.
-      `envsubst < k8s/manifests/k8s-local-setup.yaml | kubectl apply -f -`
-
-      `(Get-Content -Path "k8s\manifests\k8s-local-setup.yaml" -Raw) -replace '\$\{MINIO_IP\}', $MINIO_IP -replace '\$\{REGISTRY_IP\}', $REGISTRY_IP | kubectl apply -f -`
-
-### [TiTiler](https://developmentseed.org/titiler/) (tile server)
-
-1. Clone the repo `https://github.com/iiasa/meta-titiler`
-2. Point `TITILER_FOLDER` in `.env` at the resulting working directory.
-3. Check that a certificate is present in `certs`. If absent, create a self-signed certificate for
-   TiTiler by issuing:
-   ```
-   cd meta-titiler
-   mkdir certs
-   cd certs
-   openssl genrsa -out ca.key 2048 && \
-   openssl req -new -x509 -days 1461 -key ca.key -out ca.crt -subj "/CN=localhost" \
-   -addext "basicConstraints=critical,CA:TRUE" \
-   -addext "keyUsage=critical,keyCertSign,cRLSign" && \
-   openssl genrsa -out private.key 2048 && \
-   openssl req -new -key private.key -out server.csr -subj "/CN=localhost" && \
-   openssl x509 -req -days 1461 -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out public.crt \
-   -extfile <(printf "[v3]\nbasicConstraints=critical,CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\nsubjectAltName=DNS:localip,DNS:web_be,DNS:localhost,DNS:minio,IP:127.0.0.1") \
-   -extensions v3
-   cd ..
-   ```
+1. Execute `docker compose -f docker-compose.dev.yml up db [--build]` to start the service and optionally (re)build the
+   image.
+2. Enter the db container with `docker exec -it <db container ID> /bin/bash`
+3. Create databases inside the container with:
+    - `su -- postgres -c "createdb accelerator"`
+    - `su -- postgres -c "createdb acceleratortest"`
+    - `su -- postgres -c "createdb accms"`
+    - `su -- postgres -c "createdb thrd"`
+4. When a database already exists, you may wish to drop it first to start with a clean state:
+    - `su -- postgres -c "dropdb accelerator"`
+    - `su -- postgres -c "dropdb acceleratortest"`
+    - `su -- postgres -c "dropdb accms"`
+    - `su -- postgres -c "dropdb thrd"`
 
 ### MinIO (block storage, S3)
 
@@ -205,7 +87,7 @@ In `.env.scheduler`, aside from the obvious settings:
    ```
    mc admin accesskey create local/ --insecure
    ```
-7. In `.env.web.be` and `.env.scheduler`, set these as values of the `*_S3_API_KEY=` and `*_S3_SECRET_KEY=` entries.
+7. In `.env.web.be`, set these as values of the `*_S3_API_KEY=` and `*_S3_SECRET_KEY=` entries.
 8. Add the MinIO endpoint to your system's known hosts.
 
 ### Registry
@@ -215,21 +97,136 @@ Generate `htpasswd` file:
 1. `docker pull httpd:2`
 2. `docker run --rm --entrypoint htpasswd httpd:2 -Bbn myregistry myregistrypassword > registry_auth/htpasswd`
 
-### Database
+### Backend (`.env.web.be`)
 
-1. Execute `docker compose -f docker-compose.dev.yml up db [--build]` to start the service and optionally (re)build the
-   image.
-2. Enter the db container with `docker exec -it <db container ID> /bin/bash`
-3. Create databases inside the container with:
-    - `su -- postgres -c "createdb accelerator"`
-    - `su -- postgres -c "createdb acceleratortest"`
-    - `su -- postgres -c "createdb accms"`
-    - `su -- postgres -c "createdb thrd"`
-4. When a database already exists, you may wish to drop it first to start with a clean slate:
-    - `su -- postgres -c "dropdb accelerator"`
-    - `su -- postgres -c "dropdb acceleratortest"`
-    - `su -- postgres -c "dropdb accms"`
-    - `su -- postgres -c "dropdb thrd"`
+Aside from the self-explanatory settings...
+
+1. Set `JOB_SECRET_ENCRYPTION_KEY` to the base64-encoded representation of random 256-bit key values which you can
+   obtain as follows:
+
+```
+head </dev/random -c32 | base64
+```
+
+This key encrypts secrets required by jobs.
+
+2. Set `BUCKET_DETAILS_ENCRYPTION_KEY` to the base64-encoded representation of random 256-bit key values which you can
+   obtain as follows:
+
+```
+head </dev/random -c32 | base64
+```
+
+This key encrypts bucket credentials.
+
+Need a public/private keypair. Tokens are signed with the private key by the backend, and can be verified with the
+public key. This is useful for example for the gateway for interactive containers: the gateway simply verifies the token
+via the public key as obtained via the `GET` method at
+`https://accelerator-api.iiasa.ac.at/docs#/.well-known/jwks.json`.
+
+3. Use OpenSSL to generate the keypair and extract the public key:
+
+```
+openssl ecparam -genkey -name prime256v1 -noout -out private_key.pem
+openssl ec -in private_key.pem -pubout -out public_key.pem
+```
+
+4. Set `JWT_BASE64_PRIVATE_KEY` to the base64-encoded representation of your private key which you can obtain as
+   follows:
+
+```
+base64 -w0 private_key.pem
+```
+
+5. Set `JWT_BASE64_PUBLIC_KEY` to the base64-encoded representation of your public key which you can obtain as follows:
+
+```
+base64 -w0 public_key.pem
+```
+
+### `.env.web.be` (job dispatcher)
+
+Never wrap values in quotes in a Docker `.env` file unless your application explicitly expects those quotation marks to
+be part of the actual string.
+
+### Job Dispatcher (`.env.web.be`)
+
+`IMAGE_REGISTRY_TAG_PREFIX` is needed when the registry is subdivided in namespaces. For example Harbor uses projects.
+If so, set the name of your space/project followed by a slash as value.
+
+- When the registry service is running, you should be able to log in via  `docker login <registry>:8443` and the
+  configured username and password.
+
+1. Convert `~/.kube/config` to JSON and then a base64 string:
+   ```
+   kubectl config view --output json --raw > kubeconfig.json
+   ```
+   Edit the JSON to remove irrelevant contexts / credentials. Change host name to `host.docker.internal` if you are
+   using Docker Desktop with WSL
+   ```
+   base64 -w0 kubeconfig.json > kubeconfig.b64
+   ```
+   Set `WKUBE_SECRET_JSON_B64` to the content of `kubeconfig.b64`.
+    - Or use command
+      `python3 -c "import sys, yaml, json; print(json.dumps(yaml.safe_load(sys.stdin), indent=2))" < ~/.kube/config > config.json`
+      to convert the kubernetes config to JSON.
+2. Set `ACCELERATOR_APP_TOKEN` by obtaining a token as follows:
+    - Startup the backend service:  
+      `docker compose up web_be`
+        - This also starts the integrated frontend.
+    - Create an account for yourself by signing in to the front end at `https://localhost:8080/` or
+      `https://localhost:8000/`.
+        - Press the "Login with IIASA" button.
+    - With `docker ps`, determine the container ID of the backend and shell into the container:  
+      `docker ps | grep web_be`  
+      `docker exec -it <backend container ID> /bin/bash`
+    - Grant your account superuser rights:  
+      `python apply.py add_role <your email> APP__SUPERUSER`
+    - Obtain an access token with superuser rights:  
+      `python apply.py get_access_token <your email> <seconds to expiry>`
+    - Copy and paste the token as the value of `ACCELERATOR_APP_TOKEN`.
+3. Set `USE_HOST_NAMESPACES` to `1` if you use WSL.
+4. Apply the Kubernetes Local Bridge Manifest. If you are using Kubernetes in Docker Desktop:
+    - Get current dynamic IPs of the local containers (be cautious if container names are the same).
+
+      `export MINIO_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' accelerator_service-minio-1)`
+
+      `export REGISTRY_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' accelerator_service-registry-1)`
+
+      `$MINIO_IP = (docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' accelerator_service-minio-1)`
+
+      `$REGISTRY_IP = (docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' accelerator_service-registry-1)`
+
+    - Inject the IPs into the template and apply directly to Kubernetes.
+      `envsubst < k8s/manifests/k8s-local-setup.yaml | kubectl apply -f -`
+
+      `(Get-Content -Path "k8s\manifests\k8s-local-setup.yaml" -Raw) -replace '\$\{MINIO_IP\}', $MINIO_IP -replace '\$\{REGISTRY_IP\}', $REGISTRY_IP | kubectl apply -f -`
+
+### [TiTiler](https://developmentseed.org/titiler/) (tile server)
+
+1. Clone the repo `https://github.com/iiasa/meta-titiler`
+2. Point `TITILER_FOLDER` in `.env` at the resulting working directory.
+3. Check that a certificate is present in `certs`. If absent, create a self-signed certificate for TiTiler by issuing:
+   ```
+   cd meta-titiler
+   mkdir certs
+   cd certs
+   openssl genrsa -out ca.key 2048 && \
+   openssl req -new -x509 -days 1461 -key ca.key -out ca.crt -subj "/CN=localhost" \
+   -addext "basicConstraints=critical,CA:TRUE" \
+   -addext "keyUsage=critical,keyCertSign,cRLSign" && \
+   openssl genrsa -out private.key 2048 && \
+   openssl req -new -key private.key -out server.csr -subj "/CN=localhost" && \
+   openssl x509 -req -days 1461 -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out public.crt \
+   -extfile <(printf "[v3]\nbasicConstraints=critical,CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\nsubjectAltName=DNS:localip,DNS:web_be,DNS:localhost,DNS:minio,IP:127.0.0.1") \
+   -extensions v3
+   cd ..
+   ```
+
+### Frontend (`.env.web.fe`)
+
+Must use https with TiTiler and hence set `https://...` in `VITE_TITILER_API_BASE_URL`. Therefore, need to generate
+self-signed certificate for TiTiler. Configuration details pending.
 
 ## Further configuration
 
