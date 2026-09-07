@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: xet-janitor
-        image: registry.iiasa.ac.at/accelerator/iiasa-acc-be:4899594b
+        image: registry.iiasa.ac.at/accelerator/iiasa-acc-be:19e80f94
         command: ["celery"]
         args:
           - "-A"
@@ -26,7 +26,7 @@ spec:
           - "-Q"
           - "janitor_queue"
           - "-B"
-          - "--concurrency=2"
+          - "--concurrency=4"
         envFrom:
           - secretRef:
               name: accelerator-be-secret
@@ -35,9 +35,11 @@ spec:
           limits:
             memory: "4000Mi"
             cpu: "2000m"
+            ephemeral-storage: "12Gi"
           requests:
             memory: "4000Mi"
             cpu: "2000m"
+            ephemeral-storage: "12Gi"
 
       imagePullSecrets:
         - name: iiasaregcred

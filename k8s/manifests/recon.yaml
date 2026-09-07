@@ -25,7 +25,7 @@ spec:
                   - hpg1025
       containers:
       - name: xet-reconstruction
-        image: registry.iiasa.ac.at/accelerator/recon:6e3e4798
+        image: registry.iiasa.ac.at/accelerator/recon:8853411b
         envFrom:
           - secretRef:
               name: accelerator-be-secret
@@ -36,11 +36,11 @@ spec:
           limits:
             memory: "4095Mi"
             cpu: "4000m"
-            ephemeral-storage: "4Gi"
+            ephemeral-storage: "12Gi"
           requests:
             memory: "4095Mi"
             cpu: "4000m"
-            ephemeral-storage: "4Gi"
+            ephemeral-storage: "12Gi"
       
       
       imagePullSecrets:

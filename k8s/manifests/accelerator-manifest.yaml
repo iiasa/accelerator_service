@@ -12,12 +12,12 @@ spec:
       labels:
         app: accelerator-be
       annotations:
-        kubernetes.io/restart-at: "2025-10-22T10:50:43+0410"
+        kubernetes.io/restart-at: "2025-10-22T10:50:43+0510"
     spec:
       containers:
       - name: acc-be
         # image: registry.iiasa.ac.at/accelerator/iiasa-acc-be:a1837404
-        image: registry.iiasa.ac.at/accelerator/iiasa-acc-be:fbc95a5a
+        image: registry.iiasa.ac.at/accelerator/iiasa-acc-be:19e80f94
         envFrom:
           - secretRef:
               name: accelerator-be-secret
@@ -28,11 +28,11 @@ spec:
           limits:
             memory: "4095Mi"
             cpu: "4000m"
-            ephemeral-storage: "2Gi"
+            ephemeral-storage: "12Gi"
           requests:
             memory: "4095Mi"
             cpu: "4000m"
-            ephemeral-storage: "2Gi"
+            ephemeral-storage: "12Gi"
       
       
       imagePullSecrets:
