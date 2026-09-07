@@ -197,7 +197,7 @@ services:
       context: "${PROJECT_FOLDER:?err}"
       dockerfile: dockerfiles/Dockerfile.k8s.events
     env_file:
-      - ./.env.scheduler
+      - ./.env.web.be
     volumes:
       - "${PROJECT_FOLDER:?err}:/app/"
     depends_on:
