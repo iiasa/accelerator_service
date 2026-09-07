@@ -1,7 +1,7 @@
 # DEBUG_MODE takes 0 or 1 as a value. 0 = False, 1 = True.
 DEBUG_MODE=1
 IIASA_MICROSOFT_OPENID_ISSUER_WELL_KNOWN_CONF=https://login.microsoftonline.com/9b79b10b-0007-4e8a-b072-asdfgcdc1aa5/v2.0/.well-known/openid-configuration
-BUCKET_DETAILS_ENCRYPTION_KEY=<base-64-encoded_256-bit_key>
+BUCKET_DETAILS_ENCRYPTION_KEY=<base-64-encoded_256-bit-key>
 # ES256
 JWT_BASE64_PRIVATE_KEY=<mocked>
 JWT_BASE64_PUBLIC_KEY=<mocked>
@@ -48,6 +48,7 @@ TEAMS_WEBHOOK_URL=<mocked>
 ACCELERATOR_CLI_BASE_URL=https://localhost:8000
 WKUBE_AGENT_PULLER=wrufesh/wkube-agent-puller
 IMAGE_REGISTRY_URL=registry:8443
+IMAGE_REGISTRY_TAG_PREFIX=
 IMAGE_REGISTRY_USER=myregistry
 IMAGE_REGISTRY_PASSWORD=myregistrypassword
 OCI_BUILDER_IMAGE=wrufesh/wkube-image-builder
@@ -61,6 +62,9 @@ DOCKER_TLS_VERIFY=
 DOCKER_CERT_PATH=
 
 ACCELERATOR_APP_TOKEN=<mocked>
+TUNNEL_GATEWAY_SSH_PRIVATE_KEY_BASE64=<base-64-encoded-private-key>
+
+USE_HOST_NAMESPACES=0
 
 ENABLE_HF_ACC_CSI=1
 
