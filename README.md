@@ -63,7 +63,7 @@ clone it somewhere convenient, and point `ACCMS_PROJECT_FOLDER` at the resulting
    openssl genrsa -out private.key 2048 && \
    openssl req -new -key private.key -out server.csr -subj "/CN=localhost" && \
    openssl x509 -req -days 1461 -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out public.crt \
-   -extfile <(printf "[v3]\nbasicConstraints=critical,CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\nsubjectAltName=DNS:localip,DNS:web_be,DNS:localhost,DNS:minio,IP:127.0.0.1") \
+   -extfile <(printf "[v3]\nbasicConstraints=critical,CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\nsubjectAltName=DNS:localip,DNS:web_be,DNS:localhost,DNS:minio,IP:127.0.0.1,DNS:host.docker.internal") \
    -extensions v3 && \
    cd ..
    ```
@@ -218,7 +218,7 @@ If so, set the name of your space/project followed by a slash as value.
    openssl genrsa -out private.key 2048 && \
    openssl req -new -key private.key -out server.csr -subj "/CN=localhost" && \
    openssl x509 -req -days 1461 -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out public.crt \
-   -extfile <(printf "[v3]\nbasicConstraints=critical,CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\nsubjectAltName=DNS:localip,DNS:web_be,DNS:localhost,DNS:minio,IP:127.0.0.1") \
+   -extfile <(printf "[v3]\nbasicConstraints=critical,CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\nsubjectAltName=DNS:localip,DNS:web_be,DNS:localhost,DNS:minio,IP:127.0.0.1,DNS:host.docker.internal") \
    -extensions v3
    cd ..
    ```
