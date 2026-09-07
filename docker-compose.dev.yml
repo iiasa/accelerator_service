@@ -195,7 +195,7 @@ services:
   k8s_events:
     build:
       context: "${PROJECT_FOLDER:?err}"
-      dockerfile: dockerfiles/Dockerfile.k8s.events.dev
+      dockerfile: dockerfiles/Dockerfile.k8s.events
     env_file:
       - ./.env.scheduler
     volumes:
