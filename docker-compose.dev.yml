@@ -194,12 +194,12 @@ services:
 
   k8s_events:
     build:
-      context: "${SCHEDULER_PROJECT_FOLDER:?err}"
-      dockerfile: dockerfiles/Dockerfile.k8s.events.dev
+      context: "${PROJECT_FOLDER:?err}"
+      dockerfile: dockerfiles/Dockerfile.k8s.events
     env_file:
-      - ./.env.scheduler
+      - ./.env.web.be
     volumes:
-      - "${SCHEDULER_PROJECT_FOLDER:?err}:/app/"
+      - "${PROJECT_FOLDER:?err}:/app/"
     depends_on:
       web_be:
         condition: service_started
