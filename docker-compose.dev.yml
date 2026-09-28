@@ -182,8 +182,8 @@ services:
     privileged: true
     env_file:
       - ./.env.web.be
-    # volumes:
-    #   - "${PROJECT_FOLDER:?err}:/home/ubuntu/app/"
+    volumes:
+      - "${PROJECT_FOLDER:?err}:/home/ubuntu/app/"
     depends_on:
       web_be:
         condition: service_started
