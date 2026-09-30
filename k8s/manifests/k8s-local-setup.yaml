@@ -1,5 +1,5 @@
 # ==========================================
-# 1. MINIO BRIDGE
+# 1. MINIO BRIDGE (ExternalName to host gateway)
 # ==========================================
 apiVersion: v1
 kind: Service
@@ -7,27 +7,11 @@ metadata:
   name: minio
   namespace: default
 spec:
-  ports:
-    - port: 9000
-      targetPort: 9000
----
-apiVersion: discovery.k8s.io/v1
-kind: EndpointSlice
-metadata:
-  name: minio-custom
-  namespace: default
-  labels:
-    kubernetes.io/service-name: minio
-addressType: IPv4
-ports:
-  - port: 9000
-    protocol: TCP
-endpoints:
-  - addresses:
-      - ${MINIO_IP}
+  type: ExternalName
+  externalName: host.docker.internal
 ---
 # ==========================================
-# 2. REGISTRY BRIDGE
+# 2. REGISTRY BRIDGE (ExternalName to host gateway)
 # ==========================================
 apiVersion: v1
 kind: Service
@@ -35,27 +19,23 @@ metadata:
   name: registry
   namespace: default
 spec:
-  ports:
-    - port: 8443
-      targetPort: 8443
----
-apiVersion: discovery.k8s.io/v1
-kind: EndpointSlice
-metadata:
-  name: registry-custom
-  namespace: default
-  labels:
-    kubernetes.io/service-name: registry
-addressType: IPv4
-ports:
-  - port: 8443
-    protocol: TCP
-endpoints:
-  - addresses:
-      - ${REGISTRY_IP}
+  type: ExternalName
+  externalName: host.docker.internal
 ---
 # ==========================================
-# 3. STORAGE CLASSES
+# 3. BACKEND BRIDGE (ExternalName to host gateway)
+# ==========================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-be
+  namespace: default
+spec:
+  type: ExternalName
+  externalName: host.docker.internal
+---
+# ==========================================
+# 4. STORAGE CLASSES
 # ==========================================
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
@@ -74,23 +54,57 @@ volumeBindingMode: WaitForFirstConsumer
 reclaimPolicy: Delete
 ---
 # ==========================================
-# 4. NODE REGISTRY PATCHER
+# 5. REGISTRY TLS TRUST CONFIGURATOR
 # ==========================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: registry-certs-config
+  namespace: kube-system
+data:
+  ca.crt: |
+    -----BEGIN CERTIFICATE-----
+    MIIDRTCCAi2gAwIBAgIUVSv0SDaAHHegHt6QXNkVEmQM/U4wDQYJKoZIhvcNAQEL
+    BQAwEzERMA8GA1UEAwwIcmVnaXN0cnkwHhcNMjYwOTI4MTIwNjUwWhcNMzYwOTI1
+    MTIwNjUwWjATMREwDwYDVQQDDAhyZWdpc3RyeTCCASIwDQYJKoZIhvcNAQEBBQAD
+    ggEPADCCAQoCggEBAMCT4h7wgOkQTrX5L2Is0qK6/LIs0tICKBzRvx6Kykd/lrez
+    /5+7SxEHEZZDaS3yC6iMe5JqSbxW0xeD7AAj/f3J4GH9cJMsmCGmpzn35jx04sJo
+    2dWx+jpuTDAsQXsvsn4REG7vMDXwUEpcuVZoXK4C3cc9qNvFWkdwbfcndXtvCf6B
+    JBB/ZRBgduWzHIrtWs0bpWEY5tO6aOAMUMPbrBnbim79dRrsNehyPG6O2afMA9ic
+    lsdxZJLr+DVN9b5AV5ZKZecHIkCQ58RH7MdxgX1tZTmdzxjhtVxWqsJ+2iCBB1lw
+    WavtWipaMs7WLAS3qeuxEe67B1qkl6k+dMJJTU8CAwEAAaOBkDCBjTAdBgNVHQ4E
+    FgQUSsNxq2TcGuTWxkL+m7NKJ9q5JA8wHwYDVR0jBBgwFoAUSsNxq2TcGuTWxkL+
+    m7NKJ9q5JA8wOgYDVR0RBDMwMYIIcmVnaXN0cnmCFGhvc3QuZG9ja2VyLmludGVy
+    bmFsgglsb2NhbGhvc3SHBH8AAAEwDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG9w0B
+    AQsFAAOCAQEAZavstM6Eo4zyLJvFvLqgKgQ3pdyAE/GlVKJCeQNYuAb3Z2unYzeE
+    uf1bmdiVrc/tbDDCiBk9lg7zF8B5LPXyDdKiFTjmBxEWo71lpLA0up02K9hWzA2K
+    czlErShKkD0NLfsHErYOFPwdaFNDkL2lhnUQk5mgUOxWzanHaWF7+si9T/xTx33x
+    g0a0k7YgEVZkr6EAXeHoycLq9Sqkat5qIf/U4cGwtfCnMAidHdDEY/g1joXjbGPs
+    YjWXHvDmz51Ch2x4lj/Oex1AOFZDAHqiOVDV9uhCn8of+pUpbys6DuOrQasnqO7J
+    eeswqnf9cO/tUwCOMbrkDdedW6ZYGYGLSQ==
+    -----END CERTIFICATE-----
+  hosts.toml: |
+    server = "https://registry:8443"
+
+    [host."https://host.docker.internal:8443"]
+      capabilities = ["pull", "resolve"]
+      ca = ["/etc/containerd/certs.d/registry:8443/ca.crt"]
+---
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: containerd-registry-configurator
+  name: containerd-registry-trust
   namespace: kube-system
   labels:
-    app: containerd-configurator
+    app: containerd-registry-trust
 spec:
   selector:
     matchLabels:
-      app: containerd-configurator
+      app: containerd-registry-trust
   template:
     metadata:
       labels:
-        app: containerd-configurator
+        app: containerd-registry-trust
     spec:
       hostNetwork: true
       tolerations:
@@ -104,22 +118,19 @@ spec:
           args:
             - |
               mkdir -p /host/etc/containerd/certs.d/registry:8443
-              cat <<EOF > /host/etc/containerd/certs.d/registry:8443/hosts.toml
-              server = "https://${REGISTRY_IP}:8443"
-
-              [host."https://${REGISTRY_IP}:8443"]
-                capabilities = ["pull", "resolve"]
-                skip_verify = true
-              EOF
-
-              sed -i '/registry/d' /host/etc/hosts
-              echo "${REGISTRY_IP} registry" >> /host/etc/hosts
-
+              cp -f /config/ca.crt /host/etc/containerd/certs.d/registry:8443/ca.crt
+              cp -f /config/hosts.toml /host/etc/containerd/certs.d/registry:8443/hosts.toml
+              echo "Registry certificates and hosts.toml installed successfully"
               sleep infinity
           volumeMounts:
             - name: host-etc
               mountPath: /host/etc
+            - name: config-vol
+              mountPath: /config
       volumes:
         - name: host-etc
           hostPath:
             path: /etc
+        - name: config-vol
+          configMap:
+            name: registry-certs-config

@@ -157,19 +157,19 @@ If so, set the name of your space/project followed by a slash as value.
 - When the registry service is running, you should be able to log in via  `docker login <registry>:8443` and the
   configured username and password.
 
-1. Convert `~/.kube/config` to JSON and then a base64 string:
-   ```
-   kubectl config view --output json --raw > kubeconfig.json
-   ```
-   Edit the JSON to remove irrelevant contexts / credentials. Change host name to `host.docker.internal` if you are
-   using Docker Desktop with WSL
-   ```
-   base64 -w0 kubeconfig.json > kubeconfig.b64
-   ```
-   Set `WKUBE_SECRET_JSON_B64` to the content of `kubeconfig.b64`.
-    - Or use command
-      `python3 -c "import sys, yaml, json; print(json.dumps(yaml.safe_load(sys.stdin), indent=2))" < ~/.kube/config > config.json`
-      to convert the kubernetes config to JSON.
+1. Convert your Kubernetes config into a base64 string for `WKUBE_SECRET_JSON_B64`:
+   - If using Docker Desktop / WSL, the server endpoint in the kubeconfig should point to `https://host.docker.internal:<port>` (the port can be found with `kubectl cluster-info`).
+   - You can generate the UTF-8 encoded base64 value in one step:
+     ```bash
+     # Linux / WSL
+     kubectl config view --raw -o json | sed 's/127\.0\.0\.1/host.docker.internal/g' | base64 -w0
+     ```
+     Or in PowerShell:
+     ```powershell
+     $json = (kubectl config view --raw -o json) -replace '127\.0\.0\.1', 'host.docker.internal'
+     [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($json))
+     ```
+   - Paste the output string as the value of `WKUBE_SECRET_JSON_B64` in `.env.web.be`.
 2. Set `ACCELERATOR_APP_TOKEN` by obtaining a token as follows:
     - Startup the backend service:  
       `docker compose up web_be`
@@ -186,21 +186,10 @@ If so, set the name of your space/project followed by a slash as value.
       `python apply.py get_access_token <your email> <seconds to expiry>`
     - Copy and paste the token as the value of `ACCELERATOR_APP_TOKEN`.
 3. Set `USE_HOST_NAMESPACES` to `1` if you use WSL.
-4. Apply the Kubernetes Local Bridge Manifest. If you are using Kubernetes in Docker Desktop:
-    - Get current dynamic IPs of the local containers (be cautious if container names are the same).
-
-      `export MINIO_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' accelerator_service-minio-1)`
-
-      `export REGISTRY_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' accelerator_service-registry-1)`
-
-      `$MINIO_IP = (docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' accelerator_service-minio-1)`
-
-      `$REGISTRY_IP = (docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' accelerator_service-registry-1)`
-
-    - Inject the IPs into the template and apply directly to Kubernetes.
-      `envsubst < k8s/manifests/k8s-local-setup.yaml | kubectl apply -f -`
-
-      `(Get-Content -Path "k8s\manifests\k8s-local-setup.yaml" -Raw) -replace '\$\{MINIO_IP\}', $MINIO_IP -replace '\$\{REGISTRY_IP\}', $REGISTRY_IP | kubectl apply -f -`
+4. Apply the Kubernetes Local Bridge Manifest:
+   ```
+   kubectl apply -f k8s/manifests/k8s-local-setup.yaml
+   ```
 
 ### [TiTiler](https://developmentseed.org/titiler/) (tile server)
 
