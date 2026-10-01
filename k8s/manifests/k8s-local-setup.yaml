@@ -53,6 +53,14 @@ provisioner: rancher.io/local-path
 volumeBindingMode: WaitForFirstConsumer
 reclaimPolicy: Delete
 ---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: longhorn
+provisioner: rancher.io/local-path
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Delete
+---
 # ==========================================
 # 5. REGISTRY TLS TRUST CONFIGURATOR
 # ==========================================
