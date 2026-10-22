@@ -139,7 +139,9 @@ services:
   recon:
     build:
       context: "${PROJECT_FOLDER:?err}"
-      dockerfile: dockerfiles/Dockerfile.recon
+      dockerfile: dockerfiles/Dockerfile.recon.dev
+    volumes:
+      - "${PROJECT_FOLDER:?err}:/app/"
     ports:
       - 8900:8900
     env_file:
