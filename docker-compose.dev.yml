@@ -63,6 +63,8 @@ services:
       dockerfile: dockerfiles/Dockerfile.devc
     volumes:
       - "${PROJECT_FOLDER:?err}:/app/"
+      - "${PROJECT_FOLDER:?err}/certs/ca.crt:/usr/local/share/ca-certificates/backend.crt:ro"
+      - "${MINIO_DEV_CERT_LOCATION:?err}/ca.crt:/usr/local/share/ca-certificates/minio.crt:ro"
     env_file:
       - ./.env.web.be
     stdin_open: true
@@ -82,6 +84,8 @@ services:
   #    dockerfile: dockerfiles/Dockerfile.be
   #  volumes:
   #    - "${PROJECT_FOLDER:?err}:/app/"
+  #    - "${PROJECT_FOLDER:?err}/certs/ca.crt:/usr/local/share/ca-certificates/backend.crt:ro"
+  #    - "${MINIO_DEV_CERT_LOCATION:?err}/ca.crt:/usr/local/share/ca-certificates/minio.crt:ro"
   #  ports:
   #    - 8000:8000
   #    - 20102:20102
@@ -106,6 +110,8 @@ services:
       dockerfile: dockerfiles/Dockerfile.devc
     volumes:
       - "${PROJECT_FOLDER:?err}:/app/"
+      - "${PROJECT_FOLDER:?err}/certs/ca.crt:/usr/local/share/ca-certificates/backend.crt:ro"
+      - "${MINIO_DEV_CERT_LOCATION:?err}/ca.crt:/usr/local/share/ca-certificates/minio.crt:ro"
       - ../../xet-core:/app/xet-core
       - ../xet_shard_parser:/app/xet_shard_parser
       - ../../hf-mount:/app/hf-mount
