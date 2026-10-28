@@ -8,8 +8,13 @@ titiler/
 registry_auth/*
 !registry_auth/.gitkeep
 
-minio_certs/*
-!minio_certs/.gitkeep
+certs/backend/*
+!certs/backend/.gitkeep
+certs/ca/*
+!certs/ca/.gitkeep
+certs/minio/*
+!certs/minio/.gitkeep
+!certs/prod-s3-internal.crt
 
 k8s/manifests/secrets/accelerator-be-secret.yaml
 k8s/manifests/secrets/celery-cluster-secret.yaml
