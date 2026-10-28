@@ -46,7 +46,7 @@ MSYS_NO_PATHCONV=1 openssl req -new \
   -out certs/backend/server.csr \
   -subj "/CN=web_be"
 
-SAN_BACKEND="DNS:localhost,DNS:web_be,DNS:localip,DNS:host.docker.internal,IP:127.0.0.1"
+SAN_BACKEND="DNS:localhost,DNS:web_be,DNS:web-be,DNS:localip,DNS:host.docker.internal,IP:127.0.0.1"
 cat <<EOF > certs/backend_ext.cnf
 [v3]
 basicConstraints=critical,CA:FALSE
