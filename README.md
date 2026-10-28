@@ -60,7 +60,7 @@ To generate/regenerate certificates for all services (Root CA, MinIO, and Backen
 ./scripts/generate_certs.sh
 ```
 
-To import the certificates into Windows Root store (Run as Administrator in PowerShell):
+To import the certificates into Windows Root store (auto-elevates to Administrator if needed):
 ```powershell
 .\scripts\import_certs_certutil.ps1
 ```
