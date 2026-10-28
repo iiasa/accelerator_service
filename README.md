@@ -65,6 +65,15 @@ To import the certificates into Windows Root store (auto-elevates to Administrat
 .\scripts\import_certs_certutil.ps1
 ```
 
+To apply certificates to Kubernetes as a `cluster-ca-certs` ConfigMap:
+```bash
+# Linux / macOS / Git Bash
+./scripts/apply_cluster_ca_certs.sh <namespace>  # default: default
+
+# Windows PowerShell
+.\scripts\apply_cluster_ca_certs.ps1 -Namespace default
+```
+
 | Path | Purpose |
 |---|---|
 | `certs/ca/ca.crt` | Development Root CA certificate (trust anchor for clients, containers, and OS trust store) |
