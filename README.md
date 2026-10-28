@@ -71,7 +71,7 @@ To import the certificates into Windows Root store (Run as Administrator in Powe
 | `certs/ca/ca.key` | Development Root CA private key |
 | `certs/minio/` | Leaf server cert (`public.crt`), private key (`private.key`), for MinIO |
 | `certs/backend/` | Leaf server cert (`public.crt`) and private key (`private.key`) mounted into backend service |
-| `certs/prod-s3-internal.crt` | Harica GEANT Root CA for internal S3 access |
+| `certs/prod-s3-internal.crt` | IIASA ICT Root CA for internal S3 access |
 
 ### MinIO (block storage, S3)
 
