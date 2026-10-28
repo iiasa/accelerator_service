@@ -51,21 +51,33 @@ clone it somewhere convenient, and point `ACCMS_PROJECT_FOLDER` at the resulting
     - `su -- postgres -c "dropdb accms"`
     - `su -- postgres -c "dropdb thrd"`
 
+### TLS Certificates (`certs/`)
+
+All development TLS certificates are centralized in `certs/` and signed by a single **Dev Root CA** (`certs/ca/ca.crt`).
+
+To generate/regenerate certificates for all services (Root CA, MinIO, and Backend):
+```bash
+./scripts/generate_certs.sh
+```
+
+To import the certificates into Windows Root store (Run as Administrator in PowerShell):
+```powershell
+.\scripts\import_certs_certutil.ps1
+```
+
+| Path | Purpose |
+|---|---|
+| `certs/ca/ca.crt` | Development Root CA certificate (trust anchor for clients, containers, and OS trust store) |
+| `certs/ca/ca.key` | Development Root CA private key |
+| `certs/minio/` | Leaf server cert (`public.crt`), private key (`private.key`), for MinIO |
+| `certs/backend/` | Leaf server cert (`public.crt`) and private key (`private.key`) mounted into backend service |
+| `certs/prod-s3-internal.crt` | Harica GEANT Root CA for internal S3 access |
+
 ### MinIO (block storage, S3)
 
-1. Create a self-signed certificate (x509 v3):
+1. Generate TLS certificates (if not already done):
    ```bash
-   cd minio_certs && \
-   openssl genrsa -out ca.key 2048 && \
-   openssl req -new -x509 -days 1461 -key ca.key -out ca.crt -subj "/CN=localhost" \
-   -addext "basicConstraints=critical,CA:TRUE" \
-   -addext "keyUsage=critical,keyCertSign,cRLSign" && \
-   openssl genrsa -out private.key 2048 && \
-   openssl req -new -key private.key -out server.csr -subj "/CN=localhost" && \
-   openssl x509 -req -days 1461 -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out public.crt \
-   -extfile <(printf "[v3]\nbasicConstraints=critical,CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\nsubjectAltName=DNS:localip,DNS:web_be,DNS:localhost,DNS:minio,IP:127.0.0.1,DNS:host.docker.internal") \
-   -extensions v3 && \
-   cd ..
+   ./scripts/generate_certs.sh
    ```
 2. Start the service:
    ```
