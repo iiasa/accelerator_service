@@ -1,0 +1,33 @@
+[CmdletBinding()]
+param (
+    [string]$Namespace = "default"
+)
+
+$ErrorActionPreference = "Stop"
+
+$certsDir = Join-Path $PSScriptRoot "..\certs"
+$devCa = Join-Path $certsDir "ca\ca.crt"
+$prodS3 = Join-Path $certsDir "prod-s3-internal.crt"
+
+if (-not (Test-Path $devCa)) {
+    Write-Error "Dev CA cert not found at $devCa. Run generate_certs.sh first."
+    exit 1
+}
+
+Write-Host "Creating cluster-ca-certs ConfigMap in namespace '$Namespace' from $certsDir..." -ForegroundColor Cyan
+
+$args = @(
+    "create", "configmap", "cluster-ca-certs",
+    "--from-file=accelerator-dev-ca.crt=$devCa"
+)
+
+if (Test-Path $prodS3) {
+    $args += "--from-file=prod-s3-internal.crt=$prodS3"
+}
+
+$args += @("-n", $Namespace, "--dry-run=client", "-o", "yaml")
+
+$yaml = & kubectl @args
+$yaml | kubectl apply -f -
+
+Write-Host "ConfigMap cluster-ca-certs successfully applied in namespace '$Namespace'." -ForegroundColor Green
