@@ -1,4 +1,13 @@
 $ErrorActionPreference = "Stop"
+
+# Ensure script is running with Administrator privileges
+$currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    Write-Host "Elevating process to Administrator..." -ForegroundColor Yellow
+    Start-Process powershell.exe -Verb RunAs -ArgumentList ("-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"")
+    exit 0
+}
+
 $certsDir = Join-Path $PSScriptRoot "..\certs"
 
 $devCaCert = Join-Path $certsDir "ca\ca.crt"
