@@ -134,6 +134,11 @@ services:
     stdin_open: true
     tty: true
     privileged: true
+    networks:
+      default:
+        aliases:
+          - web_be
+          - web-be
     depends_on:
       db:
         condition: service_healthy
