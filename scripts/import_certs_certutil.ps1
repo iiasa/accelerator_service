@@ -13,24 +13,7 @@ $certsDir = Join-Path $PSScriptRoot "..\certs"
 $devCaCert = Join-Path $certsDir "ca\ca.crt"
 $prodS3Cert = Join-Path $certsDir "prod-s3-internal.crt"
 
-# 1. Clean up old/stale dev certificates from Root store
-Write-Host "Checking for old dev certificates to clean up..." -ForegroundColor Cyan
-
-# Known old self-signed cert fingerprints (MinIO and Backend CN=localhost)
-$knownOldThumbprints = @(
-    "DDA57D070FD8A80001AD70DEDAE3919B27D23E5D", # old dev-minio-ca
-    "2B8C3D99B8C4B72BF24AF9C301B9400579FFB5C8"  # old dev-backend-ca
-)
-
-foreach ($tp in $knownOldThumbprints) {
-    $existing = Get-Item "Cert:\LocalMachine\Root\$tp" -ErrorAction SilentlyContinue
-    if ($existing) {
-        Write-Host "Removing legacy dev cert ($tp - $($existing.Subject))..." -ForegroundColor Yellow
-        certutil.exe -delstore root $tp | Out-Null
-    }
-}
-
-# Also remove previous Accelerator-Dev-Root-CA (if re-generating new keys)
+# 1. Clean up outdated Accelerator-Dev-Root-CA from Root store (if re-generating new keys)
 $existingDevCas = Get-ChildItem Cert:\LocalMachine\Root | Where-Object { $_.Subject -eq "CN=Accelerator-Dev-Root-CA" }
 foreach ($cert in $existingDevCas) {
     if (Test-Path $devCaCert) {
