@@ -239,22 +239,18 @@ If so, set the name of your space/project followed by a slash as value.
      kubectl set env deployment/hf-csi-driver-webhook -n kube-system -c webhook ACC_ENDPOINT="https://host.docker.internal:8000" ACC_CAS_ENDPOINT="https://host.docker.internal:8000/api/xet-cas"
      kubectl rollout restart deployment/hf-csi-driver-webhook -n kube-system
      ```
-   - Create the `wkube` namespace and apply CA certificates into `wkube` and `kube-system` namespaces:
+   - Ensure the `wkube` workload namespace exists (`kube-system` exists by default):
      ```bash
-     # 1. Ensure the wkube namespace exists (kube-system exists by default)
      kubectl create namespace wkube --dry-run=client -o yaml | kubectl apply -f -
-
-     # 2. Apply CA certificates ConfigMap
-     # Linux / macOS / Git Bash:
+     ```
+   - Apply the CA certificates into `wkube` and `kube-system` namespaces:
+     ```bash
+     # Linux / macOS / Git Bash
      ./scripts/apply_cluster_ca_certs.sh wkube
      ./scripts/apply_cluster_ca_certs.sh kube-system
      ```
      ```powershell
-     # Windows PowerShell:
-     # Ensure wkube namespace exists
-     kubectl create namespace wkube --dry-run=client -o yaml | kubectl apply -f -
-
-     # Apply CA certificates ConfigMap
+     # Windows PowerShell
      .\scripts\apply_cluster_ca_certs.ps1 -Namespace wkube
      .\scripts\apply_cluster_ca_certs.ps1 -Namespace kube-system
      ```
