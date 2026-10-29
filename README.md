@@ -214,6 +214,13 @@ If so, set the name of your space/project followed by a slash as value.
 
 5. Run the Accelerator CSI Driver locally (for `/mnt/wdrv` support):
    When jobs require project space access (`/mnt/wdrv`), the `hf.csi.accelerator` driver dynamically mounts project buckets into worker pods using `hf-mount`.
+   - Apply the CSI driver manifests to the cluster (if setting up a new cluster):
+     ```bash
+     kubectl apply -f ../hf-csi-driver/deploy/kubernetes/csidriver.yaml
+     kubectl apply -f ../hf-csi-driver/deploy/kubernetes/serviceaccount.yaml
+     kubectl apply -f ../hf-csi-driver/deploy/kubernetes/rbac.yaml
+     kubectl apply -f ../hf-csi-driver/deploy/kubernetes/daemonset.yaml
+     ```
    - Ensure the driver image with CA injection support is present in the cluster:
      - **Option A (Published Image — Recommended for new developers):**
        If using the official published image, simply ensure the DaemonSet uses the latest tag:
