@@ -191,6 +191,9 @@ If so, set the name of your space/project followed by a slash as value.
      [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($json))
      ```
    - Paste the output string as the value of `WKUBE_SECRET_JSON_B64` in `.env.web.be`.
+   - Ensure `WKUBE_K8_NAMESPACE` in `.env.web.be` matches your cluster setup:
+     - Set to `default` for local development.
+     - Set to `wkube` for production deployment.
 2. Set `ACCELERATOR_APP_TOKEN` by obtaining a token as follows:
     - Startup the backend service:  
       `docker compose up web_be`
