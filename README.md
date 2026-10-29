@@ -176,10 +176,10 @@ If so, set the name of your space/project followed by a slash as value.
      # Linux / WSL
      kubectl config view --raw -o json | sed 's/127\.0\.0\.1/host.docker.internal/g' | base64 -w0
      ```
-     Or in PowerShell:
+     Or in PowerShell (copies directly to clipboard):
      ```powershell
      $json = (kubectl config view --raw -o json) -replace '127\.0\.0\.1', 'host.docker.internal'
-     [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($json))
+     [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($json)) | Set-Clipboard
      ```
    - Paste the output string as the value of `WKUBE_SECRET_JSON_B64` in `.env.web.be`.
 2. Set `ACCELERATOR_APP_TOKEN` by obtaining a token as follows:
