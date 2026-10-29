@@ -220,16 +220,19 @@ If so, set the name of your space/project followed by a slash as value.
        kubectl set image daemonset/hf-csi-node -n kube-system hf-csi-plugin=ghcr.io/wrufesh/hf-csi-driver:v0.9.2-acc-p11
        ```
      - **Option B (Local Build — When developing or modifying `hf-csi-driver` code locally):**
-       Build the image locally from source and import it into your local cluster node:
-       ```bash
-       docker build -t ghcr.io/wrufesh/hf-csi-driver:v0.9.2-acc-p11 ../hf-csi-driver
-       # If using Linux / macOS / Git Bash:
-       docker save ghcr.io/wrufesh/hf-csi-driver:v0.9.2-acc-p11 | docker exec -i desktop-control-plane ctr -n k8s.io images import -
-       ```
-       ```powershell
-       # If using Windows PowerShell (avoiding binary pipeline corruption):
-       cmd.exe /c "docker save ghcr.io/wrufesh/hf-csi-driver:v0.9.2-acc-p11 | docker exec -i desktop-control-plane ctr -n k8s.io images import -"
-       ```
+       1. Build the image locally from source:
+          ```bash
+          docker build -t ghcr.io/wrufesh/hf-csi-driver:v0.9.2-acc-p11 ../hf-csi-driver
+          ```
+       2. Import the image into your local cluster node (`desktop-control-plane`):
+          ```bash
+          # Linux / macOS / Git Bash:
+          docker save ghcr.io/wrufesh/hf-csi-driver:v0.9.2-acc-p11 | docker exec -i desktop-control-plane ctr -n k8s.io images import -
+          ```
+          ```powershell
+          # Windows PowerShell (avoiding binary pipeline corruption):
+          cmd.exe /c "docker save ghcr.io/wrufesh/hf-csi-driver:v0.9.2-acc-p11 | docker exec -i desktop-control-plane ctr -n k8s.io images import -"
+          ```
    - Configure the CSI Driver endpoint (and optional webhook if deployed) to reach the local backend (`https://host.docker.internal:8000`) using `kubectl` (works identically on Linux, macOS, and Windows):
      ```bash
      kubectl set env daemonset/hf-csi-node -n kube-system -c hf-csi-plugin ACC_ENDPOINT="https://host.docker.internal:8000" ACC_CAS_ENDPOINT="https://host.docker.internal:8000/api/xet-cas"
