@@ -14,9 +14,6 @@ if (-not (Test-Path $devCa)) {
     exit 1
 }
 
-Write-Host "Ensuring namespace '$Namespace' exists..." -ForegroundColor Cyan
-& kubectl create namespace $Namespace --dry-run=client -o yaml | kubectl apply -f -
-
 Write-Host "Creating cluster-ca-certs ConfigMap in namespace '$Namespace' from $certsDir..." -ForegroundColor Cyan
 
 $args = @(

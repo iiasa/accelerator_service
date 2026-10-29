@@ -65,12 +65,16 @@ To import the certificates into Windows Root store (auto-elevates to Administrat
 .\scripts\import_certs_certutil.ps1
 ```
 
-To apply certificates to Kubernetes as a `cluster-ca-certs` ConfigMap:
+To create the `wkube` namespace and apply certificates to Kubernetes as a `cluster-ca-certs` ConfigMap:
 ```bash
-# Linux / macOS / Git Bash
-./scripts/apply_cluster_ca_certs.sh <namespace>  # default: default
+# 1. Ensure the wkube namespace exists
+kubectl create namespace wkube --dry-run=client -o yaml | kubectl apply -f -
 
-# Windows PowerShell
+# 2. Apply CA certificates ConfigMap
+# Linux / macOS / Git Bash:
+./scripts/apply_cluster_ca_certs.sh wkube
+
+# Windows PowerShell:
 .\scripts\apply_cluster_ca_certs.ps1 -Namespace wkube
 ```
 
