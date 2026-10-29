@@ -224,8 +224,12 @@ If so, set the name of your space/project followed by a slash as value.
        Build the image locally from source and import it into your local cluster node:
        ```bash
        docker build -t ghcr.io/wrufesh/hf-csi-driver:v0.9.2-acc-p11 ../hf-csi-driver
-       # If using kind / Docker Desktop Kubernetes, load the image into the cluster node:
+       # If using Linux / macOS / Git Bash:
        docker save ghcr.io/wrufesh/hf-csi-driver:v0.9.2-acc-p11 | docker exec -i desktop-control-plane ctr -n k8s.io images import -
+       ```
+       ```powershell
+       # If using Windows PowerShell (avoiding binary pipeline corruption):
+       cmd.exe /c "docker save ghcr.io/wrufesh/hf-csi-driver:v0.9.2-acc-p11 | docker exec -i desktop-control-plane ctr -n k8s.io images import -"
        ```
    - Configure the CSI Driver endpoint (and optional webhook if deployed) to reach the local backend (`https://host.docker.internal:8000`) using `kubectl` (works identically on Linux, macOS, and Windows):
      ```bash
