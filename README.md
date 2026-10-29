@@ -214,26 +214,39 @@ If so, set the name of your space/project followed by a slash as value.
 
 5. Run the Accelerator CSI Driver locally (for `/mnt/wdrv` support):
    When jobs require project space access (`/mnt/wdrv`), the `hf.csi.accelerator` driver dynamically mounts project buckets into worker pods using `hf-mount`.
-   - Ensure the driver image is built with CA injection support:
+   - Ensure the driver image with CA injection support is present in the cluster:
+     - **Option A (Published Image — Recommended for new developers):**
+       If using the official published image, simply ensure the DaemonSet uses the latest tag:
+       ```bash
+       kubectl set image daemonset/hf-csi-node -n kube-system hf-csi-plugin=ghcr.io/wrufesh/hf-csi-driver:v0.9.2-acc-p11
+       ```
+     - **Option B (Local Build — When developing or modifying `hf-csi-driver` code locally):**
+       Build the image locally from source and import it into your local cluster node:
+       ```bash
+       docker build -t ghcr.io/wrufesh/hf-csi-driver:v0.9.2-acc-p11 ../hf-csi-driver
+       # If using kind / Docker Desktop Kubernetes, load the image into the cluster node:
+       docker save ghcr.io/wrufesh/hf-csi-driver:v0.9.2-acc-p11 | docker exec -i desktop-control-plane ctr -n k8s.io images import -
+       ```
+   - Configure the CSI Driver endpoint (and optional webhook if deployed) to reach the local backend (`https://host.docker.internal:8000`) using `kubectl` (works identically on Linux, macOS, and Windows):
      ```bash
-     docker build -t ghcr.io/wrufesh/hf-csi-driver:v0.9.2-acc-p11 ../hf-csi-driver
-     # If using kind / Docker Desktop Kubernetes, load the image into the cluster node:
-     docker save ghcr.io/wrufesh/hf-csi-driver:v0.9.2-acc-p11 | docker exec -i desktop-control-plane ctr -n k8s.io images import -
+     kubectl set env daemonset/hf-csi-node -n kube-system -c hf-csi-plugin ACC_ENDPOINT="https://host.docker.internal:8000" ACC_CAS_ENDPOINT="https://host.docker.internal:8000/api/xet-cas"
+     kubectl rollout restart daemonset/hf-csi-node -n kube-system
+
+     # If using the admission webhook deployment:
+     kubectl set env deployment/hf-csi-driver-webhook -n kube-system -c webhook ACC_ENDPOINT="https://host.docker.internal:8000" ACC_CAS_ENDPOINT="https://host.docker.internal:8000/api/xet-cas"
+     kubectl rollout restart deployment/hf-csi-driver-webhook -n kube-system
      ```
-   - In `scheduler/acc-values-dev.yaml` (or when running the daemonset), ensure `ACC_ENDPOINT` and `ACC_CAS_ENDPOINT` point to `https://host.docker.internal:8000`:
-     ```yaml
-     extraEnv:
-       - name: ACCELERATOR_MOUNT
-         value: "1"
-       - name: ACC_CAS_ENDPOINT
-         value: "https://host.docker.internal:8000/api/xet-cas"
-       - name: ACC_ENDPOINT
-         value: "https://host.docker.internal:8000"
-     ```
+     *(Note: If deploying via Helm instead, pass `--set "extraEnv[1].value=https://host.docker.internal:8000/api/xet-cas" --set "extraEnv[2].value=https://host.docker.internal:8000" --set "webhook.extraEnv[1].value=https://host.docker.internal:8000/api/xet-cas" --set "webhook.extraEnv[2].value=https://host.docker.internal:8000"`)*
    - Apply the CA certificates into `default` and `kube-system` namespaces:
      ```bash
+     # Linux / macOS / Git Bash
      ./scripts/apply_cluster_ca_certs.sh default
      ./scripts/apply_cluster_ca_certs.sh kube-system
+     ```
+     ```powershell
+     # Windows PowerShell
+     .\scripts\apply_cluster_ca_certs.ps1 -Namespace default
+     .\scripts\apply_cluster_ca_certs.ps1 -Namespace kube-system
      ```
 
 ### [TiTiler](https://developmentseed.org/titiler/) (tile server)
