@@ -13,6 +13,9 @@ if [[ ! -f "$DEV_CA" ]]; then
     exit 1
 fi
 
+echo "Ensuring namespace '${NAMESPACE}' exists..."
+kubectl create namespace "${NAMESPACE}" --dry-run=client -o yaml | kubectl apply -f -
+
 echo "Creating cluster-ca-certs ConfigMap in namespace '${NAMESPACE}' from ${CERTS_DIR}..."
 
 CMD=(kubectl create configmap cluster-ca-certs
