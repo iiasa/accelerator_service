@@ -51,21 +51,33 @@ clone it somewhere convenient, and point `ACCMS_PROJECT_FOLDER` at the resulting
     - `su -- postgres -c "dropdb accms"`
     - `su -- postgres -c "dropdb thrd"`
 
+### TLS Certificates (`certs/`)
+
+All development TLS certificates are centralized in `certs/` and signed by a single **Dev Root CA** (`certs/ca/ca.crt`).
+
+To generate/regenerate certificates for all services (Root CA, MinIO, and Backend):
+```bash
+./scripts/generate_certs.sh
+```
+
+To import the certificates into Windows Root store (auto-elevates to Administrator if needed):
+```powershell
+.\scripts\import_certs_certutil.ps1
+```
+
+| Path | Purpose |
+|---|---|
+| `certs/ca/ca.crt` | Development Root CA certificate (trust anchor for clients, containers, and OS trust store) |
+| `certs/ca/ca.key` | Development Root CA private key |
+| `certs/minio/` | Leaf server cert (`public.crt`), private key (`private.key`), for MinIO |
+| `certs/backend/` | Leaf server cert (`public.crt`) and private key (`private.key`) mounted into backend service |
+| `certs/prod-s3-internal.crt` | IIASA ICT Root CA for internal S3 access |
+
 ### MinIO (block storage, S3)
 
-1. Create a self-signed certificate (x509 v3):
+1. Generate TLS certificates (if not already done):
    ```bash
-   cd minio_certs && \
-   openssl genrsa -out ca.key 2048 && \
-   openssl req -new -x509 -days 1461 -key ca.key -out ca.crt -subj "/CN=localhost" \
-   -addext "basicConstraints=critical,CA:TRUE" \
-   -addext "keyUsage=critical,keyCertSign,cRLSign" && \
-   openssl genrsa -out private.key 2048 && \
-   openssl req -new -key private.key -out server.csr -subj "/CN=localhost" && \
-   openssl x509 -req -days 1461 -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out public.crt \
-   -extfile <(printf "[v3]\nbasicConstraints=critical,CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\nsubjectAltName=DNS:localip,DNS:web_be,DNS:localhost,DNS:minio,IP:127.0.0.1,DNS:host.docker.internal") \
-   -extensions v3 && \
-   cd ..
+   ./scripts/generate_certs.sh
    ```
 2. Start the service:
    ```
@@ -164,10 +176,10 @@ If so, set the name of your space/project followed by a slash as value.
      # Linux / WSL
      kubectl config view --raw -o json | sed 's/127\.0\.0\.1/host.docker.internal/g' | base64 -w0
      ```
-     Or in PowerShell:
+     Or in PowerShell (copies directly to clipboard):
      ```powershell
      $json = (kubectl config view --raw -o json) -replace '127\.0\.0\.1', 'host.docker.internal'
-     [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($json))
+     [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($json)) | Set-Clipboard
      ```
    - Paste the output string as the value of `WKUBE_SECRET_JSON_B64` in `.env.web.be`.
 2. Set `ACCELERATOR_APP_TOKEN` by obtaining a token as follows:
@@ -186,10 +198,65 @@ If so, set the name of your space/project followed by a slash as value.
       `python apply.py get_access_token <your email> <seconds to expiry>`
     - Copy and paste the token as the value of `ACCELERATOR_APP_TOKEN`.
 3. Set `USE_HOST_NAMESPACES` to `1` if you use WSL.
-4. Apply the Kubernetes Local Bridge Manifest:
+4. Ensure the `wkube` workload namespace exists (`kube-system` exists by default):
+   ```bash
+   kubectl create namespace wkube --dry-run=client -o yaml | kubectl apply -f -
    ```
+5. Apply the Kubernetes Local Bridge Manifest:
+   ```bash
    kubectl apply -f k8s/manifests/k8s-local-setup.yaml
    ```
+6. Apply the CA certificates into `wkube` and `kube-system` namespaces:
+   ```bash
+   # Linux / macOS / Git Bash
+   ./scripts/apply_cluster_ca_certs.sh wkube
+   ./scripts/apply_cluster_ca_certs.sh kube-system
+   ```
+   ```powershell
+   # Windows PowerShell
+   .\scripts\apply_cluster_ca_certs.ps1 -Namespace wkube
+   .\scripts\apply_cluster_ca_certs.ps1 -Namespace kube-system
+   ```
+7. Run the Accelerator CSI Driver locally (for `/mnt/wdrv` support):
+   When jobs require project space access (`/mnt/wdrv`), the `hf.csi.accelerator` driver dynamically mounts project buckets into worker pods using `hf-mount`.
+   - Apply the CSI driver manifests to the cluster:
+     ```bash
+     kubectl apply -f ../hf-csi-driver/deploy/kubernetes/crd.yaml
+     kubectl apply -f ../hf-csi-driver/deploy/kubernetes/csidriver.yaml
+     kubectl apply -f ../hf-csi-driver/deploy/kubernetes/serviceaccount.yaml
+     kubectl apply -f ../hf-csi-driver/deploy/kubernetes/rbac.yaml
+     kubectl apply -f ../hf-csi-driver/deploy/kubernetes/daemonset.yaml
+     ```
+   - Ensure the driver image with CA injection support is present in the cluster:
+     - **Option A (Published Image — Recommended for new developers):**
+       If using the official published image, simply ensure the DaemonSet uses the latest tag:
+       ```bash
+       kubectl set image daemonset/hf-csi-node -n kube-system hf-csi-plugin=ghcr.io/wrufesh/hf-csi-driver:v0.9.2-acc-p11
+       ```
+     - **Option B (Local Build — When developing or modifying `hf-csi-driver` code locally):**
+       1. Build the image locally from source:
+          ```bash
+          docker build -t ghcr.io/wrufesh/hf-csi-driver:v0.9.2-acc-p11 ../hf-csi-driver
+          ```
+       2. Import the image into your local cluster node (`desktop-control-plane`):
+          ```bash
+          # Linux / macOS / Git Bash:
+          docker save ghcr.io/wrufesh/hf-csi-driver:v0.9.2-acc-p11 | docker exec -i desktop-control-plane ctr -n k8s.io images import -
+          ```
+          ```powershell
+          # Windows PowerShell (avoiding binary pipeline corruption):
+          cmd.exe /c "docker save ghcr.io/wrufesh/hf-csi-driver:v0.9.2-acc-p11 | docker exec -i desktop-control-plane ctr -n k8s.io images import -"
+          ```
+   - Configure the CSI Driver endpoint to reach the local backend (`https://host.docker.internal:8000`) and restart the DaemonSet:
+     ```bash
+     kubectl set env daemonset/hf-csi-node -n kube-system -c hf-csi-plugin ACC_ENDPOINT="https://host.docker.internal:8000" ACC_CAS_ENDPOINT="https://host.docker.internal:8000/api/xet-cas"
+     kubectl rollout restart daemonset/hf-csi-node -n kube-system
+     ```
+   - (Optional) If using the admission webhook deployment, configure its endpoint and restart:
+     ```bash
+     kubectl set env deployment/hf-csi-driver-webhook -n kube-system -c webhook ACC_ENDPOINT="https://host.docker.internal:8000" ACC_CAS_ENDPOINT="https://host.docker.internal:8000/api/xet-cas"
+     kubectl rollout restart deployment/hf-csi-driver-webhook -n kube-system
+     ```
 
 ### [TiTiler](https://developmentseed.org/titiler/) (tile server)
 

@@ -5,7 +5,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: minio
-  namespace: default
+  namespace: wkube
 spec:
   type: ExternalName
   externalName: host.docker.internal
@@ -17,7 +17,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: registry
-  namespace: default
+  namespace: wkube
 spec:
   type: ExternalName
   externalName: host.docker.internal
@@ -29,7 +29,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: web-be
-  namespace: default
+  namespace: wkube
 spec:
   type: ExternalName
   externalName: host.docker.internal
