@@ -95,6 +95,11 @@ services:
   #    - ./.env.web.be
   #  stdin_open: true
   #  tty: true
+  #  networks:
+  #    default:
+  #      aliases:
+  #        - web_be
+  #        - web-be
   #  depends_on:
   #    db:
   #      condition: service_healthy
