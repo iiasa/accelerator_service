@@ -35,6 +35,41 @@ spec:
   externalName: host.docker.internal
 ---
 # ==========================================
+# 1b. MINIO BRIDGE (wkube namespace)
+# ==========================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio
+  namespace: wkube
+spec:
+  type: ExternalName
+  externalName: host.docker.internal
+---
+# ==========================================
+# 2b. REGISTRY BRIDGE (wkube namespace)
+# ==========================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: registry
+  namespace: wkube
+spec:
+  type: ExternalName
+  externalName: host.docker.internal
+---
+# ==========================================
+# 3b. BACKEND BRIDGE (wkube namespace)
+# ==========================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-be
+  namespace: wkube
+spec:
+  type: ExternalName
+  externalName: host.docker.internal
+# ==========================================
 # 4. STORAGE CLASSES
 # ==========================================
 apiVersion: storage.k8s.io/v1
