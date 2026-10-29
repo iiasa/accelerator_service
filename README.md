@@ -198,12 +198,26 @@ If so, set the name of your space/project followed by a slash as value.
       `python apply.py get_access_token <your email> <seconds to expiry>`
     - Copy and paste the token as the value of `ACCELERATOR_APP_TOKEN`.
 3. Set `USE_HOST_NAMESPACES` to `1` if you use WSL.
-4. Apply the Kubernetes Local Bridge Manifest:
+4. Ensure the `wkube` workload namespace exists (`kube-system` exists by default):
+   ```bash
+   kubectl create namespace wkube --dry-run=client -o yaml | kubectl apply -f -
+   ```
+5. Apply the Kubernetes Local Bridge Manifest:
    ```bash
    kubectl apply -f k8s/manifests/k8s-local-setup.yaml
    ```
-
-5. Run the Accelerator CSI Driver locally (for `/mnt/wdrv` support):
+6. Apply the CA certificates into `wkube` and `kube-system` namespaces:
+   ```bash
+   # Linux / macOS / Git Bash
+   ./scripts/apply_cluster_ca_certs.sh wkube
+   ./scripts/apply_cluster_ca_certs.sh kube-system
+   ```
+   ```powershell
+   # Windows PowerShell
+   .\scripts\apply_cluster_ca_certs.ps1 -Namespace wkube
+   .\scripts\apply_cluster_ca_certs.ps1 -Namespace kube-system
+   ```
+7. Run the Accelerator CSI Driver locally (for `/mnt/wdrv` support):
    When jobs require project space access (`/mnt/wdrv`), the `hf.csi.accelerator` driver dynamically mounts project buckets into worker pods using `hf-mount`.
    - Apply the CSI driver manifests to the cluster:
      ```bash
@@ -242,21 +256,6 @@ If so, set the name of your space/project followed by a slash as value.
      ```bash
      kubectl set env deployment/hf-csi-driver-webhook -n kube-system -c webhook ACC_ENDPOINT="https://host.docker.internal:8000" ACC_CAS_ENDPOINT="https://host.docker.internal:8000/api/xet-cas"
      kubectl rollout restart deployment/hf-csi-driver-webhook -n kube-system
-     ```
-   - Ensure the `wkube` workload namespace exists (`kube-system` exists by default):
-     ```bash
-     kubectl create namespace wkube --dry-run=client -o yaml | kubectl apply -f -
-     ```
-   - Apply the CA certificates into `wkube` and `kube-system` namespaces:
-     ```bash
-     # Linux / macOS / Git Bash
-     ./scripts/apply_cluster_ca_certs.sh wkube
-     ./scripts/apply_cluster_ca_certs.sh kube-system
-     ```
-     ```powershell
-     # Windows PowerShell
-     .\scripts\apply_cluster_ca_certs.ps1 -Namespace wkube
-     .\scripts\apply_cluster_ca_certs.ps1 -Namespace kube-system
      ```
 
 ### [TiTiler](https://developmentseed.org/titiler/) (tile server)
