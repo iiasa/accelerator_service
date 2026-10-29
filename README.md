@@ -233,12 +233,13 @@ If so, set the name of your space/project followed by a slash as value.
           # Windows PowerShell (avoiding binary pipeline corruption):
           cmd.exe /c "docker save ghcr.io/wrufesh/hf-csi-driver:v0.9.2-acc-p11 | docker exec -i desktop-control-plane ctr -n k8s.io images import -"
           ```
-   - Configure the CSI Driver endpoint (and optional webhook if deployed) to reach the local backend (`https://host.docker.internal:8000`) using `kubectl` (works identically on Linux, macOS, and Windows):
+   - Configure the CSI Driver endpoint to reach the local backend (`https://host.docker.internal:8000`) and restart the DaemonSet:
      ```bash
      kubectl set env daemonset/hf-csi-node -n kube-system -c hf-csi-plugin ACC_ENDPOINT="https://host.docker.internal:8000" ACC_CAS_ENDPOINT="https://host.docker.internal:8000/api/xet-cas"
      kubectl rollout restart daemonset/hf-csi-node -n kube-system
-
-     # If using the admission webhook deployment:
+     ```
+   - (Optional) If using the admission webhook deployment, configure its endpoint and restart:
+     ```bash
      kubectl set env deployment/hf-csi-driver-webhook -n kube-system -c webhook ACC_ENDPOINT="https://host.docker.internal:8000" ACC_CAS_ENDPOINT="https://host.docker.internal:8000/api/xet-cas"
      kubectl rollout restart deployment/hf-csi-driver-webhook -n kube-system
      ```
