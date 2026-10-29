@@ -214,7 +214,7 @@ If so, set the name of your space/project followed by a slash as value.
 
 5. Run the Accelerator CSI Driver locally (for `/mnt/wdrv` support):
    When jobs require project space access (`/mnt/wdrv`), the `hf.csi.accelerator` driver dynamically mounts project buckets into worker pods using `hf-mount`.
-   - Apply the CSI driver manifests to the cluster (if setting up a new cluster):
+   - Apply the CSI driver manifests to the cluster:
      ```bash
      kubectl apply -f ../hf-csi-driver/deploy/kubernetes/csidriver.yaml
      kubectl apply -f ../hf-csi-driver/deploy/kubernetes/serviceaccount.yaml
@@ -247,7 +247,6 @@ If so, set the name of your space/project followed by a slash as value.
      kubectl set env deployment/hf-csi-driver-webhook -n kube-system -c webhook ACC_ENDPOINT="https://host.docker.internal:8000" ACC_CAS_ENDPOINT="https://host.docker.internal:8000/api/xet-cas"
      kubectl rollout restart deployment/hf-csi-driver-webhook -n kube-system
      ```
-     *(Note: If deploying via Helm instead, pass `--set "extraEnv[1].value=https://host.docker.internal:8000/api/xet-cas" --set "extraEnv[2].value=https://host.docker.internal:8000" --set "webhook.extraEnv[1].value=https://host.docker.internal:8000/api/xet-cas" --set "webhook.extraEnv[2].value=https://host.docker.internal:8000"`)*
    - Apply the CA certificates into `default` and `kube-system` namespaces:
      ```bash
      # Linux / macOS / Git Bash
