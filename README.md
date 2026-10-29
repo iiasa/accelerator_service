@@ -207,15 +207,18 @@ If so, set the name of your space/project followed by a slash as value.
       `python apply.py get_access_token <your email> <seconds to expiry>`
     - Copy and paste the token as the value of `ACCELERATOR_APP_TOKEN`.
 3. Set `USE_HOST_NAMESPACES` to `1` if you use WSL.
-4. Apply the Kubernetes Local Bridge Manifest:
-   ```
+4. Apply the Kubernetes Local Bridge Manifest & connect cluster node network:
+   ```bash
    kubectl apply -f k8s/manifests/k8s-local-setup.yaml
+   # Connect cluster node to the accelerator network so it can reach MinIO/backend
+   docker network connect accelerator_service_default desktop-control-plane
    ```
 
 5. Run the Accelerator CSI Driver locally (for `/mnt/wdrv` support):
    When jobs require project space access (`/mnt/wdrv`), the `hf.csi.accelerator` driver dynamically mounts project buckets into worker pods using `hf-mount`.
    - Apply the CSI driver manifests to the cluster:
      ```bash
+     kubectl apply -f ../hf-csi-driver/deploy/kubernetes/crd.yaml
      kubectl apply -f ../hf-csi-driver/deploy/kubernetes/csidriver.yaml
      kubectl apply -f ../hf-csi-driver/deploy/kubernetes/serviceaccount.yaml
      kubectl apply -f ../hf-csi-driver/deploy/kubernetes/rbac.yaml
