@@ -212,6 +212,30 @@ If so, set the name of your space/project followed by a slash as value.
    kubectl apply -f k8s/manifests/k8s-local-setup.yaml
    ```
 
+5. Run the Accelerator CSI Driver locally (for `/mnt/wdrv` support):
+   When jobs require project space access (`/mnt/wdrv`), the `hf.csi.accelerator` driver dynamically mounts project buckets into worker pods using `hf-mount`.
+   - Ensure the driver image is built with CA injection support:
+     ```bash
+     docker build -t ghcr.io/wrufesh/hf-csi-driver:v0.9.2-acc-p11 ../hf-csi-driver
+     # If using kind / Docker Desktop Kubernetes, load the image into the cluster node:
+     docker save ghcr.io/wrufesh/hf-csi-driver:v0.9.2-acc-p11 | docker exec -i desktop-control-plane ctr -n k8s.io images import -
+     ```
+   - In `scheduler/acc-values-dev.yaml` (or when running the daemonset), ensure `ACC_ENDPOINT` and `ACC_CAS_ENDPOINT` point to `https://host.docker.internal:8000`:
+     ```yaml
+     extraEnv:
+       - name: ACCELERATOR_MOUNT
+         value: "1"
+       - name: ACC_CAS_ENDPOINT
+         value: "https://host.docker.internal:8000/api/xet-cas"
+       - name: ACC_ENDPOINT
+         value: "https://host.docker.internal:8000"
+     ```
+   - Apply the CA certificates into `default` and `kube-system` namespaces:
+     ```bash
+     ./scripts/apply_cluster_ca_certs.sh default
+     ./scripts/apply_cluster_ca_certs.sh kube-system
+     ```
+
 ### [TiTiler](https://developmentseed.org/titiler/) (tile server)
 
 1. Clone the repo `https://github.com/iiasa/meta-titiler`
